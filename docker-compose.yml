@@ -1,0 +1,29 @@
+version: "3"
+
+services:
+  postgres:
+   image: mdillon/postgis:11-alpine
+   volumes:
+     - ./docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d/
+   ports:
+     - 5431:5432
+
+  metabase:
+    image: metabase/metabase
+    volumes:
+      - ./metabase-db:/metabase.db
+    ports:
+      - 3000:3000
+    environment:
+      - MUID=${UID}
+      - MGID=${GID}
+      - MB_DB_FILE=/metabase.db
+
+  kanban-reports:
+    build: .
+    # repo it's just a few scripts. This is a dirty hack to keep the container running
+    command: bash -c "sleep infinity"
+    depends_on:
+      - postgres
+    volumes:
+      - .:/code
