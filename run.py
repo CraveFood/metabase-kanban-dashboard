@@ -2,7 +2,7 @@ import inspect
 
 import models
 
-from factories.actions import generate_data
+from populate_with_test_data import generate_data
 
 
 def is_base_subclass(obj):

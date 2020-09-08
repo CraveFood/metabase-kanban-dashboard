@@ -23,42 +23,40 @@ Base = declarative_base()
 Session = sessionmaker(bind=SQLALCHEMY_ENGINE)
 
 
-class KanbanTagType(Base):
-    __tablename__ = "kanban_tag_type"
+
+class KanbanClassOfService(Base):
+    __tablename__ = "kanban_class_of_service"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String, unique=True)
-    tags = relationship("KanbanTag", back_populates="type")
-
-
-class KanbanTag(Base):
-    __tablename__ = "kanban_tag"
-
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    name = Column(String, unique=True)
-    type = relationship("KanbanTagType", back_populates="tags")
-    type_id = Column(Integer, ForeignKey("kanban_tag_type.id"))
-
-
-class KanbanCardTag(Base):
-    __tablename__ = "kanban_card_tag_rel"
-
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    tag_id = Column(Integer, ForeignKey("kanban_tag.id"))
-    card_id = Column(String, ForeignKey("kanban_card.id"))
-
-    __table_args__ = (UniqueConstraint(tag_id, card_id),)
+    cards = relationship("KanbanCard", back_populates="class_of_service")
 
 
 class KanbanCard(Base):
     __tablename__ = "kanban_card"
 
     id = Column(String, primary_key=True)
-    tags = relationship("KanbanTag", secondary="kanban_card_tag_rel", backref="cards")
+
+    board_id = Column(Integer, ForeignKey("kanban_board.id"))
+    board = relationship("KanbanBoard", back_populates="cards")
+
+    class_of_service_id = Column(Integer, ForeignKey("kanban_class_of_service.id"))
+    class_of_service = relationship("KanbanClassOfService", back_populates="cards")
+
     times = relationship("KanbanCardTime", back_populates="card")
 
+    rework = Column(Boolean, default=False)
     waste = Column(Boolean, default=False)
     closed = Column(Boolean, default=False)
+
+
+class KanbanBoard(Base):
+    __tablename__ = "kanban_board"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    name = Column(String, unique=True)
+    cards = relationship("KanbanCard", back_populates="board")
+    columns = relationship("KanbanColumn", back_populates="board")
 
 
 class KanbanCardTime(Base):
@@ -82,14 +80,22 @@ class KanbanColumn(Base):
     name = Column(String)
     order = Column(Integer)
 
+    board_id = Column(Integer, ForeignKey("kanban_board.id"))
+    board = relationship("KanbanBoard", back_populates="columns")
+
 
 class KanbanDay(Base):
     __tablename__ = "kanban_day"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     date = Column(Date)
+
     column_id = Column(Integer, ForeignKey("kanban_column.id"))
     column = relationship("KanbanColumn")
+
     count = Column(Integer)
 
-    __table_args__ = (UniqueConstraint(date, column_id),)
+    class_of_service_id = Column(Integer, ForeignKey("kanban_class_of_service.id"))
+    class_of_service = relationship("KanbanClassOfService")
+
+    __table_args__ = (UniqueConstraint(date, column_id, class_of_service_id),)
