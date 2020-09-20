@@ -22,9 +22,13 @@ $ ./scripts/run.sh populate_with_test_data.py
 
 * Access the local Metabase instance on http://localhost:3000, create a user and password and connect to the testing database (db `kanban_metrics`, hostname `postgres`, username `postgres`, no password).
 
-* Create an empty collection using the link: http://localhost:3000/collection/root/new_collection
+* Create an empty collection using the link: http://localhost:3000/collection/root/new_collection. Check the ID of the newly created collection in the URL (probably 2).
 
-* Run the script to import the Kanban dashboards to the new collection. Check that you set the proper user name and collection id (probably "2"):
+* Run the script to import the Kanban dashboard to the new collection. Make sure to use the proper username and collection-id:
 ```
-./scripts/metabase-import-export.py --username <your-user-name> import --collection-id=<your-collection-id> --import-file=kanban-dashboards.json
+./scripts/metabase-import-export.py \
+    --username=<your-user-name> \
+    import \
+    --collection-id=<your-collection-id> \
+    --import-file=kanban-dashboards.json
 ```
