@@ -1,0 +1,3998 @@
+{
+  "collection_items": [
+    {
+      "id": 1,
+      "name": "CFD",
+      "description": null,
+      "collection_position": null,
+      "display": "area",
+      "favorite": false,
+      "model": "card",
+      "data": {
+        "description": null,
+        "archived": false,
+        "collection_position": null,
+        "table_id": null,
+        "result_metadata": [
+          {
+            "base_type": "type/Date",
+            "display_name": "date",
+            "name": "date",
+            "special_type": null,
+            "fingerprint": {
+              "global": {
+                "distinct-count": 0,
+                "nil%": null
+              },
+              "type": {
+                "type/DateTime": {
+                  "earliest": null,
+                  "latest": null
+                }
+              }
+            }
+          },
+          {
+            "base_type": "type/Text",
+            "display_name": "column_name",
+            "name": "column_name",
+            "special_type": null,
+            "fingerprint": {
+              "global": {
+                "distinct-count": 0,
+                "nil%": null
+              },
+              "type": {
+                "type/Text": {
+                  "percent-json": null,
+                  "percent-url": null,
+                  "percent-email": null,
+                  "average-length": null
+                }
+              }
+            }
+          },
+          {
+            "base_type": "type/BigInteger",
+            "display_name": "count",
+            "name": "count",
+            "special_type": "type/Quantity",
+            "fingerprint": {
+              "global": {
+                "distinct-count": 0,
+                "nil%": null
+              },
+              "type": {
+                "type/Number": {
+                  "min": null,
+                  "q1": null,
+                  "q3": null,
+                  "max": null,
+                  "sd": null,
+                  "avg": null
+                }
+              }
+            }
+          }
+        ],
+        "creator": {
+          "email": "seocam@example.com",
+          "first_name": "Sergio",
+          "last_login": "2020-09-20T17:56:30.258",
+          "is_qbnewb": false,
+          "is_superuser": true,
+          "id": 1,
+          "last_name": "Oliveira",
+          "date_joined": "2020-09-06T22:06:17.52",
+          "common_name": "Sergio Oliveira"
+        },
+        "can_write": true,
+        "database_id": 2,
+        "enable_embedding": false,
+        "collection_id": 2,
+        "query_type": "native",
+        "name": "CFD",
+        "dashboard_count": 1,
+        "creator_id": 1,
+        "updated_at": "2020-09-20T17:58:43.385",
+        "made_public_by_id": null,
+        "embedding_params": null,
+        "cache_ttl": null,
+        "dataset_query": {
+          "database": 2,
+          "native": {
+            "template-tags": {
+              "date": {
+                "id": "b1c003cb-f7b3-6f26-1a4d-473a600e7821",
+                "name": "date",
+                "display-name": "Date",
+                "type": "dimension",
+                "dimension": [
+                  "field-id",
+                  48
+                ],
+                "widget-type": "date/all-options",
+                "default": null
+              },
+              "board": {
+                "id": "7dc8b98e-5c38-db29-6228-e59a6edc7c54",
+                "name": "board",
+                "display-name": "Board",
+                "type": "dimension",
+                "dimension": [
+                  "field-id",
+                  63
+                ],
+                "widget-type": "category",
+                "default": null
+              },
+              "class_of_service": {
+                "id": "e53c202c-29e0-0633-f8af-2fda3d7a36b5",
+                "name": "class_of_service",
+                "display-name": "Class of service",
+                "type": "dimension",
+                "dimension": [
+                  "field-id",
+                  67
+                ],
+                "widget-type": "category",
+                "default": null
+              }
+            },
+            "query": "WITH initial_complete AS (\n  SELECT \n    kanban_column.order AS last_column,\n    SUM(kanban_day.count) AS complete_at_point_zero\n  FROM\n    kanban_day\n    JOIN kanban_column\n        ON kanban_day.column_id = kanban_column.id\n    JOIN kanban_board\n        ON kanban_column.board_id = kanban_board.id\n    JOIN kanban_class_of_service\n        ON kanban_day.class_of_service_id = kanban_class_of_service.id\n    WHERE\n        {{ board }}\n        [[ AND {{ date }} ]]\n        [[ AND {{ class_of_service }} ]]\n    GROUP BY kanban_column.order, kanban_day.date\n    ORDER BY kanban_column.order DESC, kanban_day.date\n    LIMIT 1\n)\n\nSELECT \n    kanban_day.date,\n    kanban_column.name AS column_name,\n    CASE WHEN (kanban_column.order = last_column) THEN SUM(kanban_day.count) - MIN(complete_at_point_zero)\n         ELSE SUM(kanban_day.count) END\n         AS count\nFROM \n    kanban_day\n    JOIN kanban_column\n        ON kanban_day.column_id = kanban_column.id\n    JOIN kanban_board\n        ON kanban_column.board_id = kanban_board.id\n    JOIN kanban_class_of_service\n        ON kanban_day.class_of_service_id = kanban_class_of_service.id\n    CROSS JOIN initial_complete\nWHERE\n    extract(dow from kanban_day.date) = 0\n    AND {{ board }}\n    [[ AND {{ date }} ]]\n    [[ AND {{ class_of_service }} ]]\n    \nGROUP BY 1, 2, kanban_column.order, last_column\nORDER BY kanban_column.order DESC; "
+          },
+          "type": "native"
+        },
+        "id": 1,
+        "display": "area",
+        "visualization_settings": {
+          "table.pivot_column": "name",
+          "table.cell_column": "order",
+          "graph.dimensions": [
+            "date",
+            "column_name"
+          ],
+          "graph.metrics": [
+            "count"
+          ],
+          "stackable.stack_type": "stacked"
+        },
+        "collection": {
+          "description": null,
+          "archived": false,
+          "slug": "kanban_metrics",
+          "color": "#509EE3",
+          "name": "Kanban Metrics",
+          "personal_owner_id": null,
+          "id": 2,
+          "location": "/",
+          "namespace": null
+        },
+        "created_at": "2020-09-06T22:23:14.061",
+        "public_uuid": null
+      }
+    },
+    {
+      "id": 3,
+      "name": "Control Chart",
+      "description": null,
+      "collection_position": null,
+      "display": "scatter",
+      "favorite": false,
+      "model": "card",
+      "data": {
+        "description": null,
+        "archived": false,
+        "collection_position": null,
+        "table_id": null,
+        "result_metadata": [
+          {
+            "base_type": "type/Text",
+            "display_name": "card_id",
+            "name": "card_id",
+            "special_type": null,
+            "fingerprint": {
+              "global": {
+                "distinct-count": 0,
+                "nil%": null
+              },
+              "type": {
+                "type/Text": {
+                  "percent-json": null,
+                  "percent-url": null,
+                  "percent-email": null,
+                  "average-length": null
+                }
+              }
+            }
+          },
+          {
+            "base_type": "type/Date",
+            "display_name": "start_date",
+            "name": "start_date",
+            "special_type": "type/CreationDate",
+            "fingerprint": {
+              "global": {
+                "distinct-count": 0,
+                "nil%": null
+              },
+              "type": {
+                "type/DateTime": {
+                  "earliest": null,
+                  "latest": null
+                }
+              }
+            }
+          },
+          {
+            "base_type": "type/Date",
+            "display_name": "end_date",
+            "name": "end_date",
+            "special_type": null,
+            "fingerprint": {
+              "global": {
+                "distinct-count": 0,
+                "nil%": null
+              },
+              "type": {
+                "type/DateTime": {
+                  "earliest": null,
+                  "latest": null
+                }
+              }
+            }
+          },
+          {
+            "base_type": "type/Integer",
+            "display_name": "time",
+            "name": "time",
+            "special_type": null,
+            "fingerprint": {
+              "global": {
+                "distinct-count": 0,
+                "nil%": null
+              },
+              "type": {
+                "type/Number": {
+                  "min": null,
+                  "q1": null,
+                  "q3": null,
+                  "max": null,
+                  "sd": null,
+                  "avg": null
+                }
+              }
+            }
+          },
+          {
+            "base_type": "type/Text",
+            "display_name": "class_of_service",
+            "name": "class_of_service",
+            "special_type": null,
+            "fingerprint": {
+              "global": {
+                "distinct-count": 0,
+                "nil%": null
+              },
+              "type": {
+                "type/Text": {
+                  "percent-json": null,
+                  "percent-url": null,
+                  "percent-email": null,
+                  "average-length": null
+                }
+              }
+            }
+          }
+        ],
+        "creator": {
+          "email": "seocam@example.com",
+          "first_name": "Sergio",
+          "last_login": "2020-09-20T17:56:30.258",
+          "is_qbnewb": false,
+          "is_superuser": true,
+          "id": 1,
+          "last_name": "Oliveira",
+          "date_joined": "2020-09-06T22:06:17.52",
+          "common_name": "Sergio Oliveira"
+        },
+        "can_write": true,
+        "database_id": 2,
+        "enable_embedding": false,
+        "collection_id": 2,
+        "query_type": "native",
+        "name": "Control Chart",
+        "dashboard_count": 1,
+        "creator_id": 1,
+        "updated_at": "2020-09-20T17:58:43.433",
+        "made_public_by_id": null,
+        "embedding_params": null,
+        "cache_ttl": null,
+        "dataset_query": {
+          "database": 2,
+          "native": {
+            "template-tags": {
+              "class_of_service": {
+                "id": "750776c1-3be2-e9e6-c71d-c3d5afc31853",
+                "name": "class_of_service",
+                "display-name": "Class of service",
+                "type": "dimension",
+                "dimension": [
+                  "field-id",
+                  67
+                ],
+                "widget-type": "category",
+                "default": null
+              },
+              "timing_type": {
+                "id": "ddf89000-8a21-34ad-66ba-de24ee0e0489",
+                "name": "timing_type",
+                "display-name": "Timing type",
+                "type": "dimension",
+                "default": null,
+                "required": true,
+                "dimension": [
+                  "field-id",
+                  42
+                ],
+                "widget-type": "category"
+              },
+              "start_date": {
+                "id": "658b3f95-2cf2-9cc3-e378-e642a07148b2",
+                "name": "start_date",
+                "display-name": "Start date",
+                "type": "dimension",
+                "dimension": [
+                  "field-id",
+                  43
+                ],
+                "widget-type": "date/all-options",
+                "default": null
+              },
+              "board": {
+                "id": "a329a97c-1863-5935-8adb-e59519dca6ba",
+                "name": "board",
+                "display-name": "Board",
+                "type": "dimension",
+                "dimension": [
+                  "field-id",
+                  63
+                ],
+                "widget-type": "category",
+                "required": true,
+                "default": null
+              }
+            },
+            "query": "\nWITH kanban_data AS (\n    SELECT \n        *,\n        kanban_class_of_service.name as class_of_service\n    FROM\n        kanban_card\n        LEFT JOIN kanban_card_time\n            ON kanban_card.id = kanban_card_time.card_id\n        JOIN kanban_board\n            ON kanban_board.id = kanban_card.board_id\n        LEFT JOIN kanban_class_of_service\n            ON kanban_card.class_of_service_id = kanban_class_of_service.id\n    WHERE \n        {{ board }} \n        AND {{ timing_type }} \n        [[ AND {{ start_date }} ]]\n        [[ AND {{ class_of_service }} ]]\n)\n\nSELECT\n    card_id,\n    start_date,\n    end_date,\n    time,\n    class_of_service\nFROM \n    kanban_data\nORDER BY start_date\n"
+          },
+          "type": "native"
+        },
+        "id": 3,
+        "display": "scatter",
+        "visualization_settings": {
+          "graph.y_axis.title_text": "Days to complete",
+          "scatter.bubble": null,
+          "graph.x_axis.labels_enabled": false,
+          "table.cell_column": "time",
+          "graph.x_axis.axis_enabled": false,
+          "graph.y_axis.labels_enabled": true,
+          "graph.y_axis.auto_split": false,
+          "graph.metrics": [
+            "time"
+          ],
+          "graph.y_axis.axis_enabled": true,
+          "table.pivot_column": "class_of_service",
+          "graph.y_axis.auto_range": true,
+          "graph.x_axis.scale": "ordinal",
+          "graph.dimensions": [
+            "start_date",
+            "class_of_service"
+          ]
+        },
+        "collection": {
+          "description": null,
+          "archived": false,
+          "slug": "kanban_metrics",
+          "color": "#509EE3",
+          "name": "Kanban Metrics",
+          "personal_owner_id": null,
+          "id": 2,
+          "location": "/",
+          "namespace": null
+        },
+        "created_at": "2020-09-07T15:45:59.58",
+        "public_uuid": null
+      }
+    },
+    {
+      "id": 7,
+      "name": "Control Chart - Percentiles",
+      "description": null,
+      "collection_position": null,
+      "display": "line",
+      "favorite": false,
+      "model": "card",
+      "data": {
+        "description": null,
+        "archived": false,
+        "collection_position": null,
+        "table_id": null,
+        "result_metadata": [
+          {
+            "base_type": "type/Date",
+            "display_name": "start_date",
+            "name": "start_date",
+            "special_type": "type/CreationDate",
+            "fingerprint": {
+              "global": {
+                "distinct-count": 0,
+                "nil%": null
+              },
+              "type": {
+                "type/DateTime": {
+                  "earliest": null,
+                  "latest": null
+                }
+              }
+            }
+          },
+          {
+            "base_type": "type/Float",
+            "display_name": "80th",
+            "name": "80th",
+            "special_type": null,
+            "fingerprint": {
+              "global": {
+                "distinct-count": 0,
+                "nil%": null
+              },
+              "type": {
+                "type/Number": {
+                  "min": null,
+                  "q1": null,
+                  "q3": null,
+                  "max": null,
+                  "sd": null,
+                  "avg": null
+                }
+              }
+            }
+          },
+          {
+            "base_type": "type/Float",
+            "display_name": "90th",
+            "name": "90th",
+            "special_type": null,
+            "fingerprint": {
+              "global": {
+                "distinct-count": 0,
+                "nil%": null
+              },
+              "type": {
+                "type/Number": {
+                  "min": null,
+                  "q1": null,
+                  "q3": null,
+                  "max": null,
+                  "sd": null,
+                  "avg": null
+                }
+              }
+            }
+          },
+          {
+            "base_type": "type/Float",
+            "display_name": "95th",
+            "name": "95th",
+            "special_type": null,
+            "fingerprint": {
+              "global": {
+                "distinct-count": 0,
+                "nil%": null
+              },
+              "type": {
+                "type/Number": {
+                  "min": null,
+                  "q1": null,
+                  "q3": null,
+                  "max": null,
+                  "sd": null,
+                  "avg": null
+                }
+              }
+            }
+          }
+        ],
+        "creator": {
+          "email": "seocam@example.com",
+          "first_name": "Sergio",
+          "last_login": "2020-09-20T17:56:30.258",
+          "is_qbnewb": false,
+          "is_superuser": true,
+          "id": 1,
+          "last_name": "Oliveira",
+          "date_joined": "2020-09-06T22:06:17.52",
+          "common_name": "Sergio Oliveira"
+        },
+        "can_write": true,
+        "database_id": 2,
+        "enable_embedding": false,
+        "collection_id": 2,
+        "query_type": "native",
+        "name": "Control Chart - Percentiles",
+        "dashboard_count": 0,
+        "creator_id": 1,
+        "updated_at": "2020-09-20T17:58:43.171",
+        "made_public_by_id": null,
+        "embedding_params": null,
+        "cache_ttl": null,
+        "dataset_query": {
+          "database": 2,
+          "native": {
+            "template-tags": {
+              "timing_type": {
+                "id": "bd6964d2-6683-db2d-2ef5-c4e37423d045",
+                "name": "timing_type",
+                "display-name": "Timing type",
+                "type": "dimension",
+                "required": true,
+                "default": null,
+                "dimension": [
+                  "field-id",
+                  42
+                ],
+                "widget-type": "category"
+              },
+              "start_date": {
+                "id": "6d094be4-8517-5df9-962d-93dd09c92a0c",
+                "name": "start_date",
+                "display-name": "Start date",
+                "type": "dimension",
+                "dimension": [
+                  "field-id",
+                  43
+                ],
+                "widget-type": "date/all-options",
+                "default": null
+              },
+              "board": {
+                "id": "3cff4a69-2822-be6d-d85e-e8e0aae2e2d0",
+                "name": "board",
+                "display-name": "Board",
+                "type": "dimension",
+                "required": true,
+                "default": null,
+                "dimension": [
+                  "field-id",
+                  63
+                ],
+                "widget-type": "category"
+              },
+              "class_of_service": {
+                "id": "89b4a9f4-bd6f-68c0-f844-8a6e858bedc9",
+                "name": "class_of_service",
+                "display-name": "Class of service",
+                "type": "dimension",
+                "dimension": [
+                  "field-id",
+                  67
+                ],
+                "widget-type": "category",
+                "default": null
+              }
+            },
+            "query": "WITH kanban_data AS (\n    SELECT \n        * \n    FROM\n        kanban_card\n        LEFT JOIN kanban_card_time\n            ON kanban_card.id = kanban_card_time.card_id\n        JOIN kanban_board\n            ON kanban_board.id = kanban_card.board_id\n        LEFT JOIN kanban_class_of_service\n            ON kanban_card.class_of_service_id = kanban_class_of_service.id\n    WHERE \n        {{ board }} \n        AND {{ timing_type }} \n        [[ AND {{ start_date }} ]]\n        [[ AND {{ class_of_service }} ]]\n)\n\nSELECT \n    start_date,\n    (SELECT percentile_cont(0.80) within group (order by time asc) FROM kanban_data) AS \"80th\",\n    (SELECT percentile_cont(0.90) within group (order by time asc) FROM kanban_data) AS \"90th\",\n    (SELECT percentile_cont(0.95) within group (order by time asc) FROM kanban_data) AS \"95th\"\nFROM\n    kanban_data;"
+          },
+          "type": "native"
+        },
+        "id": 7,
+        "display": "line",
+        "visualization_settings": {
+          "graph.show_trendline": false,
+          "graph.x_axis.labels_enabled": false,
+          "table.cell_column": "90th",
+          "graph.x_axis.axis_enabled": false,
+          "graph.y_axis.labels_enabled": false,
+          "graph.y_axis.auto_split": false,
+          "graph.metrics": [
+            "80th",
+            "90th",
+            "95th"
+          ],
+          "graph.y_axis.axis_enabled": true,
+          "table.pivot_column": "80th",
+          "series_settings": {
+            "p90": {
+              "line.missing": "zero"
+            },
+            "80th": {
+              "line.missing": "none",
+              "color": "#EF8C8C"
+            },
+            "90th": {
+              "line.missing": "none",
+              "color": "#F9D45C"
+            },
+            "95th": {
+              "line.missing": "none",
+              "color": "#88BF4D",
+              "line.interpolate": "cardinal"
+            }
+          },
+          "graph.x_axis.scale": "ordinal",
+          "graph.dimensions": [
+            "start_date"
+          ]
+        },
+        "collection": {
+          "description": null,
+          "archived": false,
+          "slug": "kanban_metrics",
+          "color": "#509EE3",
+          "name": "Kanban Metrics",
+          "personal_owner_id": null,
+          "id": 2,
+          "location": "/",
+          "namespace": null
+        },
+        "created_at": "2020-09-07T16:05:34.075",
+        "public_uuid": null
+      }
+    },
+    {
+      "id": 10,
+      "name": "How long does a task take to be completed?",
+      "description": null,
+      "collection_position": null,
+      "display": "scalar",
+      "favorite": false,
+      "model": "card",
+      "data": {
+        "description": null,
+        "archived": false,
+        "collection_position": null,
+        "table_id": null,
+        "result_metadata": [
+          {
+            "base_type": "type/Float",
+            "display_name": "ceil",
+            "name": "ceil",
+            "special_type": null,
+            "fingerprint": {
+              "global": {
+                "distinct-count": 1,
+                "nil%": 0.0
+              },
+              "type": {
+                "type/Number": {
+                  "min": 17.0,
+                  "q1": 17.0,
+                  "q3": 17.0,
+                  "max": 17.0,
+                  "sd": null,
+                  "avg": 17.0
+                }
+              }
+            }
+          }
+        ],
+        "creator": {
+          "email": "seocam@example.com",
+          "first_name": "Sergio",
+          "last_login": "2020-09-20T17:56:30.258",
+          "is_qbnewb": false,
+          "is_superuser": true,
+          "id": 1,
+          "last_name": "Oliveira",
+          "date_joined": "2020-09-06T22:06:17.52",
+          "common_name": "Sergio Oliveira"
+        },
+        "can_write": true,
+        "database_id": 2,
+        "enable_embedding": false,
+        "collection_id": 2,
+        "query_type": "native",
+        "name": "How long does a task take to be completed?",
+        "dashboard_count": 1,
+        "creator_id": 1,
+        "updated_at": "2020-09-20T17:58:42.565",
+        "made_public_by_id": null,
+        "embedding_params": null,
+        "cache_ttl": null,
+        "dataset_query": {
+          "database": 2,
+          "native": {
+            "template-tags": {
+              "class_of_service": {
+                "id": "b3d52c1a-9b07-b50c-0cea-276ac7b31830",
+                "name": "class_of_service",
+                "display-name": "Class of service",
+                "type": "dimension",
+                "dimension": [
+                  "field-id",
+                  67
+                ],
+                "widget-type": "category",
+                "default": null
+              },
+              "start_date": {
+                "id": "ae28d6ad-7300-02a0-2670-251018121583",
+                "name": "start_date",
+                "display-name": "Start date",
+                "type": "dimension",
+                "dimension": [
+                  "field-id",
+                  43
+                ],
+                "widget-type": "date/all-options",
+                "default": null
+              },
+              "timing_type": {
+                "id": "9ea855f0-5a1e-9b7a-543a-0ef96c779f55",
+                "name": "timing_type",
+                "display-name": "Timing type",
+                "type": "dimension",
+                "dimension": [
+                  "field-id",
+                  42
+                ],
+                "widget-type": "category",
+                "required": true
+              },
+              "board": {
+                "id": "d9444520-67c4-d536-505c-c8d71c4a947b",
+                "name": "board",
+                "display-name": "Board",
+                "type": "dimension",
+                "dimension": [
+                  "field-id",
+                  63
+                ],
+                "widget-type": "category",
+                "required": true
+              },
+              "confidence": {
+                "id": "46810464-160b-48d0-000d-8893b6e57b1b",
+                "name": "confidence",
+                "display-name": "Confidence",
+                "type": "number",
+                "required": true,
+                "default": "0.8"
+              }
+            },
+            "query": "SELECT\n    CEIL(percentile_cont({{ confidence }}) within group (order by time asc)) \nFROM \n    kanban_card\n    LEFT JOIN kanban_card_time\n        ON kanban_card.id = kanban_card_time.card_id\n    JOIN kanban_board\n        ON kanban_board.id = kanban_card.board_id\n    LEFT JOIN kanban_class_of_service\n        ON kanban_card.class_of_service_id = kanban_class_of_service.id\nWHERE\n    {{ board }}\n    AND {{ timing_type }}\n    [[ AND {{ start_date }} ]]\n    [[ AND {{ class_of_service }} ]]"
+          },
+          "type": "native"
+        },
+        "id": 10,
+        "display": "scalar",
+        "visualization_settings": {
+          "graph.dimensions": [
+            "start_date"
+          ],
+          "graph.metrics": [
+            "80th",
+            "90th",
+            "95th"
+          ],
+          "series_settings": {
+            "p90": {
+              "line.missing": "zero"
+            },
+            "80th": {
+              "line.missing": "zero",
+              "color": "#EF8C8C"
+            },
+            "90th": {
+              "line.missing": "zero",
+              "color": "#F9D45C"
+            },
+            "95th": {
+              "line.missing": "zero",
+              "color": "#88BF4D"
+            }
+          },
+          "table.pivot_column": "30th",
+          "table.cell_column": "50th",
+          "column_settings": {
+            "[\"name\",\"Time to Complete\"]": {
+              "suffix": " days"
+            },
+            "[\"name\",\"ceil\"]": {
+              "suffix": " days"
+            }
+          }
+        },
+        "collection": {
+          "description": null,
+          "archived": false,
+          "slug": "kanban_metrics",
+          "color": "#509EE3",
+          "name": "Kanban Metrics",
+          "personal_owner_id": null,
+          "id": 2,
+          "location": "/",
+          "namespace": null
+        },
+        "created_at": "2020-09-07T16:54:53.351",
+        "public_uuid": null
+      }
+    },
+    {
+      "id": 1,
+      "name": "Kanban",
+      "description": null,
+      "collection_position": null,
+      "model": "dashboard",
+      "data": {
+        "description": null,
+        "archived": false,
+        "collection_position": null,
+        "ordered_cards": [
+          {
+            "sizeX": 9,
+            "series": [],
+            "card": {
+              "description": null,
+              "archived": false,
+              "collection_position": null,
+              "table_id": null,
+              "result_metadata": [
+                {
+                  "base_type": "type/Date",
+                  "display_name": "date",
+                  "name": "date",
+                  "special_type": null,
+                  "fingerprint": {
+                    "global": {
+                      "distinct-count": 0,
+                      "nil%": null
+                    },
+                    "type": {
+                      "type/DateTime": {
+                        "earliest": null,
+                        "latest": null
+                      }
+                    }
+                  }
+                },
+                {
+                  "base_type": "type/Text",
+                  "display_name": "column_name",
+                  "name": "column_name",
+                  "special_type": null,
+                  "fingerprint": {
+                    "global": {
+                      "distinct-count": 0,
+                      "nil%": null
+                    },
+                    "type": {
+                      "type/Text": {
+                        "percent-json": null,
+                        "percent-url": null,
+                        "percent-email": null,
+                        "average-length": null
+                      }
+                    }
+                  }
+                },
+                {
+                  "base_type": "type/BigInteger",
+                  "display_name": "count",
+                  "name": "count",
+                  "special_type": "type/Quantity",
+                  "fingerprint": {
+                    "global": {
+                      "distinct-count": 0,
+                      "nil%": null
+                    },
+                    "type": {
+                      "type/Number": {
+                        "min": null,
+                        "q1": null,
+                        "q3": null,
+                        "max": null,
+                        "sd": null,
+                        "avg": null
+                      }
+                    }
+                  }
+                }
+              ],
+              "database_id": 2,
+              "enable_embedding": false,
+              "collection_id": 2,
+              "query_type": "native",
+              "name": "CFD",
+              "query_average_duration": 882,
+              "creator_id": 1,
+              "updated_at": "2020-09-20T17:58:43.385",
+              "made_public_by_id": null,
+              "embedding_params": null,
+              "cache_ttl": null,
+              "dataset_query": {
+                "database": 2,
+                "native": {
+                  "template-tags": {
+                    "date": {
+                      "id": "b1c003cb-f7b3-6f26-1a4d-473a600e7821",
+                      "name": "date",
+                      "display-name": "Date",
+                      "type": "dimension",
+                      "dimension": [
+                        "field-id",
+                        48
+                      ],
+                      "widget-type": "date/all-options",
+                      "default": null
+                    },
+                    "board": {
+                      "id": "7dc8b98e-5c38-db29-6228-e59a6edc7c54",
+                      "name": "board",
+                      "display-name": "Board",
+                      "type": "dimension",
+                      "dimension": [
+                        "field-id",
+                        63
+                      ],
+                      "widget-type": "category",
+                      "default": null
+                    },
+                    "class_of_service": {
+                      "id": "e53c202c-29e0-0633-f8af-2fda3d7a36b5",
+                      "name": "class_of_service",
+                      "display-name": "Class of service",
+                      "type": "dimension",
+                      "dimension": [
+                        "field-id",
+                        67
+                      ],
+                      "widget-type": "category",
+                      "default": null
+                    }
+                  },
+                  "query": "WITH initial_complete AS (\n  SELECT \n    kanban_column.order AS last_column,\n    SUM(kanban_day.count) AS complete_at_point_zero\n  FROM\n    kanban_day\n    JOIN kanban_column\n        ON kanban_day.column_id = kanban_column.id\n    JOIN kanban_board\n        ON kanban_column.board_id = kanban_board.id\n    JOIN kanban_class_of_service\n        ON kanban_day.class_of_service_id = kanban_class_of_service.id\n    WHERE\n        {{ board }}\n        [[ AND {{ date }} ]]\n        [[ AND {{ class_of_service }} ]]\n    GROUP BY kanban_column.order, kanban_day.date\n    ORDER BY kanban_column.order DESC, kanban_day.date\n    LIMIT 1\n)\n\nSELECT \n    kanban_day.date,\n    kanban_column.name AS column_name,\n    CASE WHEN (kanban_column.order = last_column) THEN SUM(kanban_day.count) - MIN(complete_at_point_zero)\n         ELSE SUM(kanban_day.count) END\n         AS count\nFROM \n    kanban_day\n    JOIN kanban_column\n        ON kanban_day.column_id = kanban_column.id\n    JOIN kanban_board\n        ON kanban_column.board_id = kanban_board.id\n    JOIN kanban_class_of_service\n        ON kanban_day.class_of_service_id = kanban_class_of_service.id\n    CROSS JOIN initial_complete\nWHERE\n    extract(dow from kanban_day.date) = 0\n    AND {{ board }}\n    [[ AND {{ date }} ]]\n    [[ AND {{ class_of_service }} ]]\n    \nGROUP BY 1, 2, kanban_column.order, last_column\nORDER BY kanban_column.order DESC; "
+                },
+                "type": "native"
+              },
+              "id": 1,
+              "display": "area",
+              "visualization_settings": {
+                "table.pivot_column": "name",
+                "table.cell_column": "order",
+                "graph.dimensions": [
+                  "date",
+                  "column_name"
+                ],
+                "graph.metrics": [
+                  "count"
+                ],
+                "stackable.stack_type": "stacked"
+              },
+              "created_at": "2020-09-06T22:23:14.061",
+              "public_uuid": null
+            },
+            "updated_at": "2020-09-20T17:27:42.967",
+            "col": 9,
+            "id": 1,
+            "parameter_mappings": [
+              {
+                "parameter_id": "e52f6d99",
+                "card_id": 1,
+                "target": [
+                  "dimension",
+                  [
+                    "template-tag",
+                    "date"
+                  ]
+                ]
+              },
+              {
+                "parameter_id": "cfb6c146",
+                "card_id": 1,
+                "target": [
+                  "dimension",
+                  [
+                    "template-tag",
+                    "board"
+                  ]
+                ]
+              },
+              {
+                "parameter_id": "197dad5e",
+                "card_id": 1,
+                "target": [
+                  "dimension",
+                  [
+                    "template-tag",
+                    "class_of_service"
+                  ]
+                ]
+              }
+            ],
+            "card_id": 1,
+            "visualization_settings": {},
+            "dashboard_id": 1,
+            "created_at": "2020-09-07T15:34:19.682",
+            "sizeY": 5,
+            "row": 3
+          },
+          {
+            "sizeX": 9,
+            "series": [],
+            "card": {
+              "description": null,
+              "archived": false,
+              "collection_position": null,
+              "table_id": null,
+              "result_metadata": [
+                {
+                  "base_type": "type/Integer",
+                  "display_name": "time",
+                  "name": "time",
+                  "special_type": null,
+                  "fingerprint": {
+                    "global": {
+                      "distinct-count": 3,
+                      "nil%": 0.0
+                    },
+                    "type": {
+                      "type/Number": {
+                        "min": 1.0,
+                        "q1": 1.25,
+                        "q3": 2.75,
+                        "max": 3.0,
+                        "sd": 1.0,
+                        "avg": 2.0
+                      }
+                    }
+                  }
+                },
+                {
+                  "base_type": "type/BigInteger",
+                  "display_name": "count",
+                  "name": "count",
+                  "special_type": "type/Quantity",
+                  "fingerprint": {
+                    "global": {
+                      "distinct-count": 3,
+                      "nil%": 0.0
+                    },
+                    "type": {
+                      "type/Number": {
+                        "min": 21.0,
+                        "q1": 21.75,
+                        "q3": 26.25,
+                        "max": 27.0,
+                        "sd": 3.0,
+                        "avg": 24.0
+                      }
+                    }
+                  }
+                }
+              ],
+              "database_id": 2,
+              "enable_embedding": false,
+              "collection_id": 2,
+              "query_type": "native",
+              "name": "Time Histogram",
+              "query_average_duration": null,
+              "creator_id": 1,
+              "updated_at": "2020-09-20T17:58:43.159",
+              "made_public_by_id": null,
+              "embedding_params": null,
+              "cache_ttl": null,
+              "dataset_query": {
+                "database": 2,
+                "native": {
+                  "template-tags": {
+                    "start_date": {
+                      "id": "658b3f95-2cf2-9cc3-e378-e642a07148b2",
+                      "name": "start_date",
+                      "display-name": "Start date",
+                      "type": "dimension",
+                      "dimension": [
+                        "field-id",
+                        43
+                      ],
+                      "widget-type": "date/all-options",
+                      "default": null
+                    },
+                    "timing_type": {
+                      "id": "ddf89000-8a21-34ad-66ba-de24ee0e0489",
+                      "name": "timing_type",
+                      "display-name": "Timing type",
+                      "type": "dimension",
+                      "default": null,
+                      "required": true,
+                      "dimension": [
+                        "field-id",
+                        42
+                      ],
+                      "widget-type": "category"
+                    },
+                    "board": {
+                      "id": "83040992-7fc3-f204-2977-38f2c81b70b2",
+                      "name": "board",
+                      "display-name": "Board",
+                      "type": "dimension",
+                      "dimension": [
+                        "field-id",
+                        63
+                      ],
+                      "widget-type": "category",
+                      "required": true
+                    },
+                    "class_of_service": {
+                      "id": "1fbef139-bfea-63ee-625a-831afd0527a6",
+                      "name": "class_of_service",
+                      "display-name": "Class of service",
+                      "type": "dimension",
+                      "dimension": [
+                        "field-id",
+                        67
+                      ],
+                      "widget-type": "category",
+                      "default": null
+                    }
+                  },
+                  "query": "WITH kanban_data AS (\n    SELECT \n        *\n    FROM\n        kanban_card\n        LEFT JOIN kanban_card_time\n            ON kanban_card.id = kanban_card_time.card_id\n        JOIN kanban_board\n            ON kanban_board.id = kanban_card.board_id\n        LEFT JOIN kanban_class_of_service\n            ON kanban_card.class_of_service_id = kanban_class_of_service.id\n    WHERE \n        {{ board }} \n        AND {{ timing_type }} \n        [[ AND {{ start_date }} ]]\n        [[ AND {{ class_of_service }} ]]\n)\n\nSELECT\n    time,\n    count(card_id)\nFROM \n    kanban_data\nGROUP BY\n    time\nORDER BY\n    time"
+                },
+                "type": "native"
+              },
+              "id": 2,
+              "display": "bar",
+              "visualization_settings": {
+                "graph.dimensions": [
+                  "time"
+                ],
+                "graph.metrics": [
+                  "count"
+                ],
+                "stackable.stack_type": "stacked"
+              },
+              "created_at": "2020-09-07T15:25:17.456",
+              "public_uuid": null
+            },
+            "updated_at": "2020-09-20T17:27:42.973",
+            "col": 0,
+            "id": 2,
+            "parameter_mappings": [
+              {
+                "parameter_id": "e52f6d99",
+                "card_id": 2,
+                "target": [
+                  "dimension",
+                  [
+                    "template-tag",
+                    "start_date"
+                  ]
+                ]
+              },
+              {
+                "parameter_id": "c88f1b1b",
+                "card_id": 2,
+                "target": [
+                  "dimension",
+                  [
+                    "template-tag",
+                    "timing_type"
+                  ]
+                ]
+              },
+              {
+                "parameter_id": "cfb6c146",
+                "card_id": 2,
+                "target": [
+                  "dimension",
+                  [
+                    "template-tag",
+                    "board"
+                  ]
+                ]
+              },
+              {
+                "parameter_id": "197dad5e",
+                "card_id": 2,
+                "target": [
+                  "dimension",
+                  [
+                    "template-tag",
+                    "class_of_service"
+                  ]
+                ]
+              }
+            ],
+            "card_id": 2,
+            "visualization_settings": {},
+            "dashboard_id": 1,
+            "created_at": "2020-09-07T15:34:19.684",
+            "sizeY": 5,
+            "row": 3
+          },
+          {
+            "sizeX": 9,
+            "series": [],
+            "card": {
+              "description": null,
+              "archived": false,
+              "collection_position": null,
+              "table_id": null,
+              "result_metadata": [
+                {
+                  "base_type": "type/Text",
+                  "display_name": "week",
+                  "name": "week",
+                  "special_type": null,
+                  "fingerprint": {
+                    "global": {
+                      "distinct-count": 0,
+                      "nil%": null
+                    },
+                    "type": {
+                      "type/Text": {
+                        "percent-json": null,
+                        "percent-url": null,
+                        "percent-email": null,
+                        "average-length": null
+                      }
+                    }
+                  }
+                },
+                {
+                  "base_type": "type/BigInteger",
+                  "display_name": "count",
+                  "name": "count",
+                  "special_type": "type/Quantity",
+                  "fingerprint": {
+                    "global": {
+                      "distinct-count": 0,
+                      "nil%": null
+                    },
+                    "type": {
+                      "type/Number": {
+                        "min": null,
+                        "q1": null,
+                        "q3": null,
+                        "max": null,
+                        "sd": null,
+                        "avg": null
+                      }
+                    }
+                  }
+                }
+              ],
+              "database_id": 2,
+              "enable_embedding": false,
+              "collection_id": 2,
+              "query_type": "native",
+              "name": "Weekly Throughput",
+              "query_average_duration": null,
+              "creator_id": 1,
+              "updated_at": "2020-09-20T17:58:42.827",
+              "made_public_by_id": null,
+              "embedding_params": null,
+              "cache_ttl": null,
+              "dataset_query": {
+                "type": "native",
+                "native": {
+                  "query": "WITH kanban_data AS (\n    SELECT \n        *\n    FROM\n        kanban_card\n        LEFT JOIN kanban_card_time\n            ON kanban_card.id = kanban_card_time.card_id\n        JOIN kanban_board\n            ON kanban_board.id = kanban_card.board_id\n        LEFT JOIN kanban_class_of_service\n            ON kanban_card.class_of_service_id = kanban_class_of_service.id\n    WHERE \n        {{ board }} \n        AND {{ timing_type }} \n        [[ AND {{ start_date }} ]]\n        [[ AND {{ class_of_service }} ]]\n)\n\nSELECT\n    TO_CHAR(end_date, 'IW-YYYY') AS week,\n    COUNT(distinct card_id)\nFROM \n    kanban_data\nGROUP BY week\nORDER BY week",
+                  "template-tags": {
+                    "board": {
+                      "id": "d3b52c79-4009-d9ad-080f-99c14016c029",
+                      "name": "board",
+                      "display-name": "Board",
+                      "type": "dimension",
+                      "dimension": [
+                        "field-id",
+                        63
+                      ],
+                      "widget-type": "category",
+                      "required": true
+                    },
+                    "start_date": {
+                      "id": "2eb1cde0-8bd5-3ace-2050-99b156c8b791",
+                      "name": "start_date",
+                      "display-name": "Start date",
+                      "type": "dimension",
+                      "dimension": [
+                        "field-id",
+                        43
+                      ],
+                      "widget-type": "date/month-year",
+                      "default": null
+                    },
+                    "class_of_service": {
+                      "id": "eefcc1c7-d0ba-7e38-c32b-cca869f20cec",
+                      "name": "class_of_service",
+                      "display-name": "Class of service",
+                      "type": "dimension",
+                      "dimension": [
+                        "field-id",
+                        67
+                      ],
+                      "widget-type": "category",
+                      "default": null
+                    },
+                    "timing_type": {
+                      "id": "24e21441-8153-07d4-074e-f484296ea403",
+                      "name": "timing_type",
+                      "display-name": "Timing type",
+                      "type": "dimension",
+                      "dimension": [
+                        "field-id",
+                        42
+                      ],
+                      "widget-type": "category",
+                      "default": null
+                    }
+                  }
+                },
+                "database": 2
+              },
+              "id": 9,
+              "display": "scatter",
+              "visualization_settings": {
+                "scatter.bubble": null,
+                "graph.dimensions": [
+                  "week"
+                ],
+                "graph.metrics": [
+                  "count"
+                ]
+              },
+              "created_at": "2020-09-07T16:40:26.306",
+              "public_uuid": null
+            },
+            "updated_at": "2020-09-20T17:27:42.976",
+            "col": 9,
+            "id": 4,
+            "parameter_mappings": [
+              {
+                "parameter_id": "e52f6d99",
+                "card_id": 9,
+                "target": [
+                  "dimension",
+                  [
+                    "template-tag",
+                    "start_date"
+                  ]
+                ]
+              },
+              {
+                "parameter_id": "c88f1b1b",
+                "card_id": 9,
+                "target": [
+                  "dimension",
+                  [
+                    "template-tag",
+                    "timing_type"
+                  ]
+                ]
+              },
+              {
+                "parameter_id": "cfb6c146",
+                "card_id": 9,
+                "target": [
+                  "dimension",
+                  [
+                    "template-tag",
+                    "board"
+                  ]
+                ]
+              },
+              {
+                "parameter_id": "197dad5e",
+                "card_id": 9,
+                "target": [
+                  "dimension",
+                  [
+                    "template-tag",
+                    "class_of_service"
+                  ]
+                ]
+              }
+            ],
+            "card_id": 9,
+            "visualization_settings": {},
+            "dashboard_id": 1,
+            "created_at": "2020-09-07T16:41:08.41",
+            "sizeY": 5,
+            "row": 8
+          },
+          {
+            "sizeX": 4,
+            "series": [],
+            "card": {
+              "description": null,
+              "archived": false,
+              "collection_position": null,
+              "table_id": null,
+              "result_metadata": [
+                {
+                  "base_type": "type/Float",
+                  "display_name": "ceil",
+                  "name": "ceil",
+                  "special_type": null,
+                  "fingerprint": {
+                    "global": {
+                      "distinct-count": 1,
+                      "nil%": 0.0
+                    },
+                    "type": {
+                      "type/Number": {
+                        "min": 17.0,
+                        "q1": 17.0,
+                        "q3": 17.0,
+                        "max": 17.0,
+                        "sd": null,
+                        "avg": 17.0
+                      }
+                    }
+                  }
+                }
+              ],
+              "database_id": 2,
+              "enable_embedding": false,
+              "collection_id": 2,
+              "query_type": "native",
+              "name": "How long does a task take to be completed?",
+              "query_average_duration": null,
+              "creator_id": 1,
+              "updated_at": "2020-09-20T17:58:42.565",
+              "made_public_by_id": null,
+              "embedding_params": null,
+              "cache_ttl": null,
+              "dataset_query": {
+                "database": 2,
+                "native": {
+                  "template-tags": {
+                    "class_of_service": {
+                      "id": "b3d52c1a-9b07-b50c-0cea-276ac7b31830",
+                      "name": "class_of_service",
+                      "display-name": "Class of service",
+                      "type": "dimension",
+                      "dimension": [
+                        "field-id",
+                        67
+                      ],
+                      "widget-type": "category",
+                      "default": null
+                    },
+                    "start_date": {
+                      "id": "ae28d6ad-7300-02a0-2670-251018121583",
+                      "name": "start_date",
+                      "display-name": "Start date",
+                      "type": "dimension",
+                      "dimension": [
+                        "field-id",
+                        43
+                      ],
+                      "widget-type": "date/all-options",
+                      "default": null
+                    },
+                    "timing_type": {
+                      "id": "9ea855f0-5a1e-9b7a-543a-0ef96c779f55",
+                      "name": "timing_type",
+                      "display-name": "Timing type",
+                      "type": "dimension",
+                      "dimension": [
+                        "field-id",
+                        42
+                      ],
+                      "widget-type": "category",
+                      "required": true
+                    },
+                    "board": {
+                      "id": "d9444520-67c4-d536-505c-c8d71c4a947b",
+                      "name": "board",
+                      "display-name": "Board",
+                      "type": "dimension",
+                      "dimension": [
+                        "field-id",
+                        63
+                      ],
+                      "widget-type": "category",
+                      "required": true
+                    },
+                    "confidence": {
+                      "id": "46810464-160b-48d0-000d-8893b6e57b1b",
+                      "name": "confidence",
+                      "display-name": "Confidence",
+                      "type": "number",
+                      "required": true,
+                      "default": "0.8"
+                    }
+                  },
+                  "query": "SELECT\n    CEIL(percentile_cont({{ confidence }}) within group (order by time asc)) \nFROM \n    kanban_card\n    LEFT JOIN kanban_card_time\n        ON kanban_card.id = kanban_card_time.card_id\n    JOIN kanban_board\n        ON kanban_board.id = kanban_card.board_id\n    LEFT JOIN kanban_class_of_service\n        ON kanban_card.class_of_service_id = kanban_class_of_service.id\nWHERE\n    {{ board }}\n    AND {{ timing_type }}\n    [[ AND {{ start_date }} ]]\n    [[ AND {{ class_of_service }} ]]"
+                },
+                "type": "native"
+              },
+              "id": 10,
+              "display": "scalar",
+              "visualization_settings": {
+                "graph.dimensions": [
+                  "start_date"
+                ],
+                "graph.metrics": [
+                  "80th",
+                  "90th",
+                  "95th"
+                ],
+                "series_settings": {
+                  "p90": {
+                    "line.missing": "zero"
+                  },
+                  "80th": {
+                    "line.missing": "zero",
+                    "color": "#EF8C8C"
+                  },
+                  "90th": {
+                    "line.missing": "zero",
+                    "color": "#F9D45C"
+                  },
+                  "95th": {
+                    "line.missing": "zero",
+                    "color": "#88BF4D"
+                  }
+                },
+                "table.pivot_column": "30th",
+                "table.cell_column": "50th",
+                "column_settings": {
+                  "[\"name\",\"Time to Complete\"]": {
+                    "suffix": " days"
+                  },
+                  "[\"name\",\"ceil\"]": {
+                    "suffix": " days"
+                  }
+                }
+              },
+              "created_at": "2020-09-07T16:54:53.351",
+              "public_uuid": null
+            },
+            "updated_at": "2020-09-20T17:27:42.983",
+            "col": 0,
+            "id": 5,
+            "parameter_mappings": [
+              {
+                "parameter_id": "a9f15aa8",
+                "card_id": 10,
+                "target": [
+                  "variable",
+                  [
+                    "template-tag",
+                    "confidence"
+                  ]
+                ]
+              },
+              {
+                "parameter_id": "e52f6d99",
+                "card_id": 10,
+                "target": [
+                  "dimension",
+                  [
+                    "template-tag",
+                    "start_date"
+                  ]
+                ]
+              },
+              {
+                "parameter_id": "cfb6c146",
+                "card_id": 10,
+                "target": [
+                  "dimension",
+                  [
+                    "template-tag",
+                    "board"
+                  ]
+                ]
+              },
+              {
+                "parameter_id": "c88f1b1b",
+                "card_id": 10,
+                "target": [
+                  "dimension",
+                  [
+                    "template-tag",
+                    "timing_type"
+                  ]
+                ]
+              },
+              {
+                "parameter_id": "197dad5e",
+                "card_id": 10,
+                "target": [
+                  "dimension",
+                  [
+                    "template-tag",
+                    "class_of_service"
+                  ]
+                ]
+              }
+            ],
+            "card_id": 10,
+            "visualization_settings": {},
+            "dashboard_id": 1,
+            "created_at": "2020-09-07T17:06:40.354",
+            "sizeY": 3,
+            "row": 0
+          },
+          {
+            "sizeX": 9,
+            "series": [
+              {
+                "id": 7,
+                "name": "Control Chart - Percentiles",
+                "description": null,
+                "display": "line",
+                "dataset_query": {
+                  "database": 2,
+                  "native": {
+                    "template-tags": {
+                      "timing_type": {
+                        "id": "bd6964d2-6683-db2d-2ef5-c4e37423d045",
+                        "name": "timing_type",
+                        "display-name": "Timing type",
+                        "type": "dimension",
+                        "required": true,
+                        "default": null,
+                        "dimension": [
+                          "field-id",
+                          42
+                        ],
+                        "widget-type": "category"
+                      },
+                      "start_date": {
+                        "id": "6d094be4-8517-5df9-962d-93dd09c92a0c",
+                        "name": "start_date",
+                        "display-name": "Start date",
+                        "type": "dimension",
+                        "dimension": [
+                          "field-id",
+                          43
+                        ],
+                        "widget-type": "date/all-options",
+                        "default": null
+                      },
+                      "board": {
+                        "id": "3cff4a69-2822-be6d-d85e-e8e0aae2e2d0",
+                        "name": "board",
+                        "display-name": "Board",
+                        "type": "dimension",
+                        "required": true,
+                        "default": null,
+                        "dimension": [
+                          "field-id",
+                          63
+                        ],
+                        "widget-type": "category"
+                      },
+                      "class_of_service": {
+                        "id": "89b4a9f4-bd6f-68c0-f844-8a6e858bedc9",
+                        "name": "class_of_service",
+                        "display-name": "Class of service",
+                        "type": "dimension",
+                        "dimension": [
+                          "field-id",
+                          67
+                        ],
+                        "widget-type": "category",
+                        "default": null
+                      }
+                    },
+                    "query": "WITH kanban_data AS (\n    SELECT \n        * \n    FROM\n        kanban_card\n        LEFT JOIN kanban_card_time\n            ON kanban_card.id = kanban_card_time.card_id\n        JOIN kanban_board\n            ON kanban_board.id = kanban_card.board_id\n        LEFT JOIN kanban_class_of_service\n            ON kanban_card.class_of_service_id = kanban_class_of_service.id\n    WHERE \n        {{ board }} \n        AND {{ timing_type }} \n        [[ AND {{ start_date }} ]]\n        [[ AND {{ class_of_service }} ]]\n)\n\nSELECT \n    start_date,\n    (SELECT percentile_cont(0.80) within group (order by time asc) FROM kanban_data) AS \"80th\",\n    (SELECT percentile_cont(0.90) within group (order by time asc) FROM kanban_data) AS \"90th\",\n    (SELECT percentile_cont(0.95) within group (order by time asc) FROM kanban_data) AS \"95th\"\nFROM\n    kanban_data;"
+                  },
+                  "type": "native"
+                },
+                "visualization_settings": {
+                  "graph.show_trendline": false,
+                  "graph.x_axis.labels_enabled": false,
+                  "table.cell_column": "90th",
+                  "graph.x_axis.axis_enabled": false,
+                  "graph.y_axis.labels_enabled": false,
+                  "graph.y_axis.auto_split": false,
+                  "graph.metrics": [
+                    "80th",
+                    "90th",
+                    "95th"
+                  ],
+                  "graph.y_axis.axis_enabled": true,
+                  "table.pivot_column": "80th",
+                  "series_settings": {
+                    "p90": {
+                      "line.missing": "zero"
+                    },
+                    "80th": {
+                      "line.missing": "none",
+                      "color": "#EF8C8C"
+                    },
+                    "90th": {
+                      "line.missing": "none",
+                      "color": "#F9D45C"
+                    },
+                    "95th": {
+                      "line.missing": "none",
+                      "color": "#88BF4D",
+                      "line.interpolate": "cardinal"
+                    }
+                  },
+                  "graph.x_axis.scale": "ordinal",
+                  "graph.dimensions": [
+                    "start_date"
+                  ]
+                },
+                "collection_id": 2,
+                "query_average_duration": null
+              }
+            ],
+            "card": {
+              "description": null,
+              "archived": false,
+              "collection_position": null,
+              "table_id": null,
+              "result_metadata": [
+                {
+                  "base_type": "type/Text",
+                  "display_name": "card_id",
+                  "name": "card_id",
+                  "special_type": null,
+                  "fingerprint": {
+                    "global": {
+                      "distinct-count": 0,
+                      "nil%": null
+                    },
+                    "type": {
+                      "type/Text": {
+                        "percent-json": null,
+                        "percent-url": null,
+                        "percent-email": null,
+                        "average-length": null
+                      }
+                    }
+                  }
+                },
+                {
+                  "base_type": "type/Date",
+                  "display_name": "start_date",
+                  "name": "start_date",
+                  "special_type": "type/CreationDate",
+                  "fingerprint": {
+                    "global": {
+                      "distinct-count": 0,
+                      "nil%": null
+                    },
+                    "type": {
+                      "type/DateTime": {
+                        "earliest": null,
+                        "latest": null
+                      }
+                    }
+                  }
+                },
+                {
+                  "base_type": "type/Date",
+                  "display_name": "end_date",
+                  "name": "end_date",
+                  "special_type": null,
+                  "fingerprint": {
+                    "global": {
+                      "distinct-count": 0,
+                      "nil%": null
+                    },
+                    "type": {
+                      "type/DateTime": {
+                        "earliest": null,
+                        "latest": null
+                      }
+                    }
+                  }
+                },
+                {
+                  "base_type": "type/Integer",
+                  "display_name": "time",
+                  "name": "time",
+                  "special_type": null,
+                  "fingerprint": {
+                    "global": {
+                      "distinct-count": 0,
+                      "nil%": null
+                    },
+                    "type": {
+                      "type/Number": {
+                        "min": null,
+                        "q1": null,
+                        "q3": null,
+                        "max": null,
+                        "sd": null,
+                        "avg": null
+                      }
+                    }
+                  }
+                },
+                {
+                  "base_type": "type/Text",
+                  "display_name": "class_of_service",
+                  "name": "class_of_service",
+                  "special_type": null,
+                  "fingerprint": {
+                    "global": {
+                      "distinct-count": 0,
+                      "nil%": null
+                    },
+                    "type": {
+                      "type/Text": {
+                        "percent-json": null,
+                        "percent-url": null,
+                        "percent-email": null,
+                        "average-length": null
+                      }
+                    }
+                  }
+                }
+              ],
+              "database_id": 2,
+              "enable_embedding": false,
+              "collection_id": 2,
+              "query_type": "native",
+              "name": "Control Chart",
+              "query_average_duration": 8,
+              "creator_id": 1,
+              "updated_at": "2020-09-20T17:58:43.433",
+              "made_public_by_id": null,
+              "embedding_params": null,
+              "cache_ttl": null,
+              "dataset_query": {
+                "database": 2,
+                "native": {
+                  "template-tags": {
+                    "class_of_service": {
+                      "id": "750776c1-3be2-e9e6-c71d-c3d5afc31853",
+                      "name": "class_of_service",
+                      "display-name": "Class of service",
+                      "type": "dimension",
+                      "dimension": [
+                        "field-id",
+                        67
+                      ],
+                      "widget-type": "category",
+                      "default": null
+                    },
+                    "timing_type": {
+                      "id": "ddf89000-8a21-34ad-66ba-de24ee0e0489",
+                      "name": "timing_type",
+                      "display-name": "Timing type",
+                      "type": "dimension",
+                      "default": null,
+                      "required": true,
+                      "dimension": [
+                        "field-id",
+                        42
+                      ],
+                      "widget-type": "category"
+                    },
+                    "start_date": {
+                      "id": "658b3f95-2cf2-9cc3-e378-e642a07148b2",
+                      "name": "start_date",
+                      "display-name": "Start date",
+                      "type": "dimension",
+                      "dimension": [
+                        "field-id",
+                        43
+                      ],
+                      "widget-type": "date/all-options",
+                      "default": null
+                    },
+                    "board": {
+                      "id": "a329a97c-1863-5935-8adb-e59519dca6ba",
+                      "name": "board",
+                      "display-name": "Board",
+                      "type": "dimension",
+                      "dimension": [
+                        "field-id",
+                        63
+                      ],
+                      "widget-type": "category",
+                      "required": true,
+                      "default": null
+                    }
+                  },
+                  "query": "\nWITH kanban_data AS (\n    SELECT \n        *,\n        kanban_class_of_service.name as class_of_service\n    FROM\n        kanban_card\n        LEFT JOIN kanban_card_time\n            ON kanban_card.id = kanban_card_time.card_id\n        JOIN kanban_board\n            ON kanban_board.id = kanban_card.board_id\n        LEFT JOIN kanban_class_of_service\n            ON kanban_card.class_of_service_id = kanban_class_of_service.id\n    WHERE \n        {{ board }} \n        AND {{ timing_type }} \n        [[ AND {{ start_date }} ]]\n        [[ AND {{ class_of_service }} ]]\n)\n\nSELECT\n    card_id,\n    start_date,\n    end_date,\n    time,\n    class_of_service\nFROM \n    kanban_data\nORDER BY start_date\n"
+                },
+                "type": "native"
+              },
+              "id": 3,
+              "display": "scatter",
+              "visualization_settings": {
+                "graph.y_axis.title_text": "Days to complete",
+                "scatter.bubble": null,
+                "graph.x_axis.labels_enabled": false,
+                "table.cell_column": "time",
+                "graph.x_axis.axis_enabled": false,
+                "graph.y_axis.labels_enabled": true,
+                "graph.y_axis.auto_split": false,
+                "graph.metrics": [
+                  "time"
+                ],
+                "graph.y_axis.axis_enabled": true,
+                "table.pivot_column": "class_of_service",
+                "graph.y_axis.auto_range": true,
+                "graph.x_axis.scale": "ordinal",
+                "graph.dimensions": [
+                  "start_date",
+                  "class_of_service"
+                ]
+              },
+              "created_at": "2020-09-07T15:45:59.58",
+              "public_uuid": null
+            },
+            "updated_at": "2020-09-20T17:27:42.992",
+            "col": 0,
+            "id": 6,
+            "parameter_mappings": [
+              {
+                "parameter_id": "e52f6d99",
+                "card_id": 3,
+                "target": [
+                  "dimension",
+                  [
+                    "template-tag",
+                    "start_date"
+                  ]
+                ]
+              },
+              {
+                "parameter_id": "c88f1b1b",
+                "card_id": 3,
+                "target": [
+                  "dimension",
+                  [
+                    "template-tag",
+                    "timing_type"
+                  ]
+                ]
+              },
+              {
+                "parameter_id": "cfb6c146",
+                "card_id": 3,
+                "target": [
+                  "dimension",
+                  [
+                    "template-tag",
+                    "board"
+                  ]
+                ]
+              },
+              {
+                "parameter_id": "197dad5e",
+                "card_id": 3,
+                "target": [
+                  "dimension",
+                  [
+                    "template-tag",
+                    "class_of_service"
+                  ]
+                ]
+              },
+              {
+                "parameter_id": "e52f6d99",
+                "card_id": 7,
+                "target": [
+                  "dimension",
+                  [
+                    "template-tag",
+                    "start_date"
+                  ]
+                ]
+              },
+              {
+                "parameter_id": "c88f1b1b",
+                "card_id": 7,
+                "target": [
+                  "dimension",
+                  [
+                    "template-tag",
+                    "timing_type"
+                  ]
+                ]
+              },
+              {
+                "parameter_id": "cfb6c146",
+                "card_id": 7,
+                "target": [
+                  "dimension",
+                  [
+                    "template-tag",
+                    "board"
+                  ]
+                ]
+              },
+              {
+                "parameter_id": "197dad5e",
+                "card_id": 7,
+                "target": [
+                  "dimension",
+                  [
+                    "template-tag",
+                    "class_of_service"
+                  ]
+                ]
+              }
+            ],
+            "card_id": 3,
+            "visualization_settings": {},
+            "dashboard_id": 1,
+            "created_at": "2020-09-07T22:09:43.641",
+            "sizeY": 5,
+            "row": 8
+          },
+          {
+            "sizeX": 4,
+            "series": [],
+            "card": {
+              "description": null,
+              "archived": false,
+              "collection_position": null,
+              "table_id": null,
+              "result_metadata": [
+                {
+                  "base_type": "type/Decimal",
+                  "display_name": "avg",
+                  "name": "avg",
+                  "special_type": null,
+                  "fingerprint": {
+                    "global": {
+                      "distinct-count": 1,
+                      "nil%": 0.0
+                    },
+                    "type": {
+                      "type/Number": {
+                        "min": 19.0,
+                        "q1": 19.0,
+                        "q3": 19.0,
+                        "max": 19.0,
+                        "sd": null,
+                        "avg": 19.0
+                      }
+                    }
+                  }
+                }
+              ],
+              "database_id": 2,
+              "enable_embedding": false,
+              "collection_id": 2,
+              "query_type": "native",
+              "name": "What's the avg of cards we delivered per week?",
+              "query_average_duration": null,
+              "creator_id": 1,
+              "updated_at": "2020-09-20T17:58:43.121",
+              "made_public_by_id": null,
+              "embedding_params": null,
+              "cache_ttl": null,
+              "dataset_query": {
+                "type": "native",
+                "native": {
+                  "query": "\nSELECT \n    AVG(count)\nFROM (\n    SELECT\n        TO_CHAR(kanban_card_time.end_date, 'IW-YYYY') AS week,\n        COUNT(distinct kanban_card.id) AS count\n    FROM \n        kanban_card\n        LEFT JOIN kanban_card_time\n            ON kanban_card.id = kanban_card_time.card_id\n        JOIN kanban_board\n            ON kanban_board.id = kanban_card.board_id\n        LEFT JOIN kanban_class_of_service\n            ON kanban_card.class_of_service_id = kanban_class_of_service.id\n    WHERE\n        {{ board }}\n        [[ AND {{ start_date }} ]]\n        [[ AND {{ class_of_service }} ]]\n    GROUP BY week\n    ORDER BY week\n) AS t",
+                  "template-tags": {
+                    "board": {
+                      "id": "d3b52c79-4009-d9ad-080f-99c14016c029",
+                      "name": "board",
+                      "display-name": "Board",
+                      "type": "dimension",
+                      "dimension": [
+                        "field-id",
+                        63
+                      ],
+                      "widget-type": "category",
+                      "required": true
+                    },
+                    "start_date": {
+                      "id": "2eb1cde0-8bd5-3ace-2050-99b156c8b791",
+                      "name": "start_date",
+                      "display-name": "Start date",
+                      "type": "dimension",
+                      "dimension": [
+                        "field-id",
+                        43
+                      ],
+                      "widget-type": "date/all-options",
+                      "default": "past6months~"
+                    },
+                    "class_of_service": {
+                      "id": "eefcc1c7-d0ba-7e38-c32b-cca869f20cec",
+                      "name": "class_of_service",
+                      "display-name": "Class of service",
+                      "type": "dimension",
+                      "dimension": [
+                        "field-id",
+                        67
+                      ],
+                      "widget-type": "category",
+                      "default": null
+                    }
+                  }
+                },
+                "database": 2
+              },
+              "id": 11,
+              "display": "scalar",
+              "visualization_settings": {
+                "scatter.bubble": null,
+                "graph.dimensions": [
+                  "week"
+                ],
+                "graph.metrics": [
+                  "count"
+                ],
+                "column_settings": {
+                  "[\"name\",\"avg\"]": {
+                    "suffix": " cards / week"
+                  }
+                }
+              },
+              "created_at": "2020-09-08T01:13:06.533",
+              "public_uuid": null
+            },
+            "updated_at": "2020-09-20T17:27:43",
+            "col": 4,
+            "id": 8,
+            "parameter_mappings": [
+              {
+                "parameter_id": "cfb6c146",
+                "card_id": 11,
+                "target": [
+                  "dimension",
+                  [
+                    "template-tag",
+                    "board"
+                  ]
+                ]
+              },
+              {
+                "parameter_id": "197dad5e",
+                "card_id": 11,
+                "target": [
+                  "dimension",
+                  [
+                    "template-tag",
+                    "class_of_service"
+                  ]
+                ]
+              },
+              {
+                "parameter_id": "e52f6d99",
+                "card_id": 11,
+                "target": [
+                  "dimension",
+                  [
+                    "template-tag",
+                    "start_date"
+                  ]
+                ]
+              }
+            ],
+            "card_id": 11,
+            "visualization_settings": {},
+            "dashboard_id": 1,
+            "created_at": "2020-09-08T01:13:30.608",
+            "sizeY": 3,
+            "row": 0
+          }
+        ],
+        "param_values": {
+          "42": {
+            "values": [],
+            "human_readable_values": {},
+            "field_id": 42
+          },
+          "63": {
+            "values": [
+              "Board A",
+              "Board B",
+              "Board C",
+              "Board D"
+            ],
+            "human_readable_values": {},
+            "field_id": 63
+          },
+          "67": {
+            "values": [
+              "bug",
+              "expedite",
+              "fixed_date",
+              "intangible",
+              "standard"
+            ],
+            "human_readable_values": {},
+            "field_id": 67
+          }
+        },
+        "can_write": true,
+        "enable_embedding": false,
+        "collection_id": 2,
+        "show_in_getting_started": false,
+        "name": "Kanban",
+        "caveats": null,
+        "creator_id": 1,
+        "updated_at": "2020-09-20T17:27:43.102",
+        "made_public_by_id": null,
+        "embedding_params": null,
+        "id": 1,
+        "position": null,
+        "param_fields": {
+          "42": {
+            "id": 42,
+            "table_id": 6,
+            "display_name": "Timing Type",
+            "base_type": "type/Text",
+            "special_type": "type/Category",
+            "has_field_values": "list",
+            "name_field": null,
+            "dimensions": []
+          },
+          "43": {
+            "id": 43,
+            "table_id": 6,
+            "display_name": "Start Date",
+            "base_type": "type/Date",
+            "special_type": "type/CreationDate",
+            "has_field_values": "none",
+            "name_field": null,
+            "dimensions": []
+          },
+          "48": {
+            "id": 48,
+            "table_id": 7,
+            "display_name": "Date",
+            "base_type": "type/Date",
+            "special_type": null,
+            "has_field_values": "none",
+            "name_field": null,
+            "dimensions": []
+          },
+          "63": {
+            "id": 63,
+            "table_id": 12,
+            "display_name": "Board name",
+            "base_type": "type/Text",
+            "special_type": "type/Name",
+            "has_field_values": "list",
+            "name_field": null,
+            "dimensions": []
+          },
+          "67": {
+            "id": 67,
+            "table_id": 13,
+            "display_name": "Class of Service Name",
+            "base_type": "type/Text",
+            "special_type": "type/Name",
+            "has_field_values": "list",
+            "name_field": null,
+            "dimensions": []
+          }
+        },
+        "parameters": [
+          {
+            "name": "Board",
+            "slug": "board",
+            "id": "cfb6c146",
+            "type": "category",
+            "default": [
+              "Board A"
+            ]
+          },
+          {
+            "name": "Timing Type",
+            "slug": "timing_type",
+            "id": "c88f1b1b",
+            "type": "category",
+            "default": "lead"
+          },
+          {
+            "name": "Forecast Confidence",
+            "slug": "forecast_confidence",
+            "id": "a9f15aa8",
+            "type": "category",
+            "default": "0.8"
+          },
+          {
+            "name": "Date Filter",
+            "slug": "date_filter",
+            "id": "e52f6d99",
+            "type": "date/all-options",
+            "default": "past6months~"
+          },
+          {
+            "name": "Class of Service",
+            "slug": "class_of_service",
+            "id": "197dad5e",
+            "type": "category"
+          }
+        ],
+        "created_at": "2020-09-07T15:25:27.396",
+        "public_uuid": null,
+        "points_of_interest": null
+      }
+    },
+    {
+      "id": 2,
+      "name": "Time Histogram",
+      "description": null,
+      "collection_position": null,
+      "display": "bar",
+      "favorite": false,
+      "model": "card",
+      "data": {
+        "description": null,
+        "archived": false,
+        "collection_position": null,
+        "table_id": null,
+        "result_metadata": [
+          {
+            "base_type": "type/Integer",
+            "display_name": "time",
+            "name": "time",
+            "special_type": null,
+            "fingerprint": {
+              "global": {
+                "distinct-count": 3,
+                "nil%": 0.0
+              },
+              "type": {
+                "type/Number": {
+                  "min": 1.0,
+                  "q1": 1.25,
+                  "q3": 2.75,
+                  "max": 3.0,
+                  "sd": 1.0,
+                  "avg": 2.0
+                }
+              }
+            }
+          },
+          {
+            "base_type": "type/BigInteger",
+            "display_name": "count",
+            "name": "count",
+            "special_type": "type/Quantity",
+            "fingerprint": {
+              "global": {
+                "distinct-count": 3,
+                "nil%": 0.0
+              },
+              "type": {
+                "type/Number": {
+                  "min": 21.0,
+                  "q1": 21.75,
+                  "q3": 26.25,
+                  "max": 27.0,
+                  "sd": 3.0,
+                  "avg": 24.0
+                }
+              }
+            }
+          }
+        ],
+        "creator": {
+          "email": "seocam@example.com",
+          "first_name": "Sergio",
+          "last_login": "2020-09-20T17:56:30.258",
+          "is_qbnewb": false,
+          "is_superuser": true,
+          "id": 1,
+          "last_name": "Oliveira",
+          "date_joined": "2020-09-06T22:06:17.52",
+          "common_name": "Sergio Oliveira"
+        },
+        "can_write": true,
+        "database_id": 2,
+        "enable_embedding": false,
+        "collection_id": 2,
+        "query_type": "native",
+        "name": "Time Histogram",
+        "dashboard_count": 1,
+        "creator_id": 1,
+        "updated_at": "2020-09-20T17:58:43.159",
+        "made_public_by_id": null,
+        "embedding_params": null,
+        "cache_ttl": null,
+        "dataset_query": {
+          "database": 2,
+          "native": {
+            "template-tags": {
+              "start_date": {
+                "id": "658b3f95-2cf2-9cc3-e378-e642a07148b2",
+                "name": "start_date",
+                "display-name": "Start date",
+                "type": "dimension",
+                "dimension": [
+                  "field-id",
+                  43
+                ],
+                "widget-type": "date/all-options",
+                "default": null
+              },
+              "timing_type": {
+                "id": "ddf89000-8a21-34ad-66ba-de24ee0e0489",
+                "name": "timing_type",
+                "display-name": "Timing type",
+                "type": "dimension",
+                "default": null,
+                "required": true,
+                "dimension": [
+                  "field-id",
+                  42
+                ],
+                "widget-type": "category"
+              },
+              "board": {
+                "id": "83040992-7fc3-f204-2977-38f2c81b70b2",
+                "name": "board",
+                "display-name": "Board",
+                "type": "dimension",
+                "dimension": [
+                  "field-id",
+                  63
+                ],
+                "widget-type": "category",
+                "required": true
+              },
+              "class_of_service": {
+                "id": "1fbef139-bfea-63ee-625a-831afd0527a6",
+                "name": "class_of_service",
+                "display-name": "Class of service",
+                "type": "dimension",
+                "dimension": [
+                  "field-id",
+                  67
+                ],
+                "widget-type": "category",
+                "default": null
+              }
+            },
+            "query": "WITH kanban_data AS (\n    SELECT \n        *\n    FROM\n        kanban_card\n        LEFT JOIN kanban_card_time\n            ON kanban_card.id = kanban_card_time.card_id\n        JOIN kanban_board\n            ON kanban_board.id = kanban_card.board_id\n        LEFT JOIN kanban_class_of_service\n            ON kanban_card.class_of_service_id = kanban_class_of_service.id\n    WHERE \n        {{ board }} \n        AND {{ timing_type }} \n        [[ AND {{ start_date }} ]]\n        [[ AND {{ class_of_service }} ]]\n)\n\nSELECT\n    time,\n    count(card_id)\nFROM \n    kanban_data\nGROUP BY\n    time\nORDER BY\n    time"
+          },
+          "type": "native"
+        },
+        "id": 2,
+        "display": "bar",
+        "visualization_settings": {
+          "graph.dimensions": [
+            "time"
+          ],
+          "graph.metrics": [
+            "count"
+          ],
+          "stackable.stack_type": "stacked"
+        },
+        "collection": {
+          "description": null,
+          "archived": false,
+          "slug": "kanban_metrics",
+          "color": "#509EE3",
+          "name": "Kanban Metrics",
+          "personal_owner_id": null,
+          "id": 2,
+          "location": "/",
+          "namespace": null
+        },
+        "created_at": "2020-09-07T15:25:17.456",
+        "public_uuid": null
+      }
+    },
+    {
+      "id": 9,
+      "name": "Weekly Throughput",
+      "description": null,
+      "collection_position": null,
+      "display": "scatter",
+      "favorite": false,
+      "model": "card",
+      "data": {
+        "description": null,
+        "archived": false,
+        "collection_position": null,
+        "table_id": null,
+        "result_metadata": [
+          {
+            "base_type": "type/Text",
+            "display_name": "week",
+            "name": "week",
+            "special_type": null,
+            "fingerprint": {
+              "global": {
+                "distinct-count": 0,
+                "nil%": null
+              },
+              "type": {
+                "type/Text": {
+                  "percent-json": null,
+                  "percent-url": null,
+                  "percent-email": null,
+                  "average-length": null
+                }
+              }
+            }
+          },
+          {
+            "base_type": "type/BigInteger",
+            "display_name": "count",
+            "name": "count",
+            "special_type": "type/Quantity",
+            "fingerprint": {
+              "global": {
+                "distinct-count": 0,
+                "nil%": null
+              },
+              "type": {
+                "type/Number": {
+                  "min": null,
+                  "q1": null,
+                  "q3": null,
+                  "max": null,
+                  "sd": null,
+                  "avg": null
+                }
+              }
+            }
+          }
+        ],
+        "creator": {
+          "email": "seocam@example.com",
+          "first_name": "Sergio",
+          "last_login": "2020-09-20T17:56:30.258",
+          "is_qbnewb": false,
+          "is_superuser": true,
+          "id": 1,
+          "last_name": "Oliveira",
+          "date_joined": "2020-09-06T22:06:17.52",
+          "common_name": "Sergio Oliveira"
+        },
+        "can_write": true,
+        "database_id": 2,
+        "enable_embedding": false,
+        "collection_id": 2,
+        "query_type": "native",
+        "name": "Weekly Throughput",
+        "dashboard_count": 1,
+        "creator_id": 1,
+        "updated_at": "2020-09-20T17:58:42.827",
+        "made_public_by_id": null,
+        "embedding_params": null,
+        "cache_ttl": null,
+        "dataset_query": {
+          "type": "native",
+          "native": {
+            "query": "WITH kanban_data AS (\n    SELECT \n        *\n    FROM\n        kanban_card\n        LEFT JOIN kanban_card_time\n            ON kanban_card.id = kanban_card_time.card_id\n        JOIN kanban_board\n            ON kanban_board.id = kanban_card.board_id\n        LEFT JOIN kanban_class_of_service\n            ON kanban_card.class_of_service_id = kanban_class_of_service.id\n    WHERE \n        {{ board }} \n        AND {{ timing_type }} \n        [[ AND {{ start_date }} ]]\n        [[ AND {{ class_of_service }} ]]\n)\n\nSELECT\n    TO_CHAR(end_date, 'IW-YYYY') AS week,\n    COUNT(distinct card_id)\nFROM \n    kanban_data\nGROUP BY week\nORDER BY week",
+            "template-tags": {
+              "board": {
+                "id": "d3b52c79-4009-d9ad-080f-99c14016c029",
+                "name": "board",
+                "display-name": "Board",
+                "type": "dimension",
+                "dimension": [
+                  "field-id",
+                  63
+                ],
+                "widget-type": "category",
+                "required": true
+              },
+              "start_date": {
+                "id": "2eb1cde0-8bd5-3ace-2050-99b156c8b791",
+                "name": "start_date",
+                "display-name": "Start date",
+                "type": "dimension",
+                "dimension": [
+                  "field-id",
+                  43
+                ],
+                "widget-type": "date/month-year",
+                "default": null
+              },
+              "class_of_service": {
+                "id": "eefcc1c7-d0ba-7e38-c32b-cca869f20cec",
+                "name": "class_of_service",
+                "display-name": "Class of service",
+                "type": "dimension",
+                "dimension": [
+                  "field-id",
+                  67
+                ],
+                "widget-type": "category",
+                "default": null
+              },
+              "timing_type": {
+                "id": "24e21441-8153-07d4-074e-f484296ea403",
+                "name": "timing_type",
+                "display-name": "Timing type",
+                "type": "dimension",
+                "dimension": [
+                  "field-id",
+                  42
+                ],
+                "widget-type": "category",
+                "default": null
+              }
+            }
+          },
+          "database": 2
+        },
+        "id": 9,
+        "display": "scatter",
+        "visualization_settings": {
+          "scatter.bubble": null,
+          "graph.dimensions": [
+            "week"
+          ],
+          "graph.metrics": [
+            "count"
+          ]
+        },
+        "collection": {
+          "description": null,
+          "archived": false,
+          "slug": "kanban_metrics",
+          "color": "#509EE3",
+          "name": "Kanban Metrics",
+          "personal_owner_id": null,
+          "id": 2,
+          "location": "/",
+          "namespace": null
+        },
+        "created_at": "2020-09-07T16:40:26.306",
+        "public_uuid": null
+      }
+    },
+    {
+      "id": 11,
+      "name": "What's the avg of cards we delivered per week?",
+      "description": null,
+      "collection_position": null,
+      "display": "scalar",
+      "favorite": false,
+      "model": "card",
+      "data": {
+        "description": null,
+        "archived": false,
+        "collection_position": null,
+        "table_id": null,
+        "result_metadata": [
+          {
+            "base_type": "type/Decimal",
+            "display_name": "avg",
+            "name": "avg",
+            "special_type": null,
+            "fingerprint": {
+              "global": {
+                "distinct-count": 1,
+                "nil%": 0.0
+              },
+              "type": {
+                "type/Number": {
+                  "min": 19.0,
+                  "q1": 19.0,
+                  "q3": 19.0,
+                  "max": 19.0,
+                  "sd": null,
+                  "avg": 19.0
+                }
+              }
+            }
+          }
+        ],
+        "creator": {
+          "email": "seocam@example.com",
+          "first_name": "Sergio",
+          "last_login": "2020-09-20T17:56:30.258",
+          "is_qbnewb": false,
+          "is_superuser": true,
+          "id": 1,
+          "last_name": "Oliveira",
+          "date_joined": "2020-09-06T22:06:17.52",
+          "common_name": "Sergio Oliveira"
+        },
+        "can_write": true,
+        "database_id": 2,
+        "enable_embedding": false,
+        "collection_id": 2,
+        "query_type": "native",
+        "name": "What's the avg of cards we delivered per week?",
+        "dashboard_count": 1,
+        "creator_id": 1,
+        "updated_at": "2020-09-20T17:58:43.121",
+        "made_public_by_id": null,
+        "embedding_params": null,
+        "cache_ttl": null,
+        "dataset_query": {
+          "type": "native",
+          "native": {
+            "query": "\nSELECT \n    AVG(count)\nFROM (\n    SELECT\n        TO_CHAR(kanban_card_time.end_date, 'IW-YYYY') AS week,\n        COUNT(distinct kanban_card.id) AS count\n    FROM \n        kanban_card\n        LEFT JOIN kanban_card_time\n            ON kanban_card.id = kanban_card_time.card_id\n        JOIN kanban_board\n            ON kanban_board.id = kanban_card.board_id\n        LEFT JOIN kanban_class_of_service\n            ON kanban_card.class_of_service_id = kanban_class_of_service.id\n    WHERE\n        {{ board }}\n        [[ AND {{ start_date }} ]]\n        [[ AND {{ class_of_service }} ]]\n    GROUP BY week\n    ORDER BY week\n) AS t",
+            "template-tags": {
+              "board": {
+                "id": "d3b52c79-4009-d9ad-080f-99c14016c029",
+                "name": "board",
+                "display-name": "Board",
+                "type": "dimension",
+                "dimension": [
+                  "field-id",
+                  63
+                ],
+                "widget-type": "category",
+                "required": true
+              },
+              "start_date": {
+                "id": "2eb1cde0-8bd5-3ace-2050-99b156c8b791",
+                "name": "start_date",
+                "display-name": "Start date",
+                "type": "dimension",
+                "dimension": [
+                  "field-id",
+                  43
+                ],
+                "widget-type": "date/all-options",
+                "default": "past6months~"
+              },
+              "class_of_service": {
+                "id": "eefcc1c7-d0ba-7e38-c32b-cca869f20cec",
+                "name": "class_of_service",
+                "display-name": "Class of service",
+                "type": "dimension",
+                "dimension": [
+                  "field-id",
+                  67
+                ],
+                "widget-type": "category",
+                "default": null
+              }
+            }
+          },
+          "database": 2
+        },
+        "id": 11,
+        "display": "scalar",
+        "visualization_settings": {
+          "scatter.bubble": null,
+          "graph.dimensions": [
+            "week"
+          ],
+          "graph.metrics": [
+            "count"
+          ],
+          "column_settings": {
+            "[\"name\",\"avg\"]": {
+              "suffix": " cards / week"
+            }
+          }
+        },
+        "collection": {
+          "description": null,
+          "archived": false,
+          "slug": "kanban_metrics",
+          "color": "#509EE3",
+          "name": "Kanban Metrics",
+          "personal_owner_id": null,
+          "id": 2,
+          "location": "/",
+          "namespace": null
+        },
+        "created_at": "2020-09-08T01:13:06.533",
+        "public_uuid": null
+      }
+    }
+  ],
+  "databases": [
+    {
+      "description": null,
+      "features": [
+        "full-join",
+        "basic-aggregations",
+        "standard-deviation-aggregations",
+        "expression-aggregations",
+        "percentile-aggregations",
+        "foreign-keys",
+        "right-join",
+        "left-join",
+        "native-parameters",
+        "nested-queries",
+        "expressions",
+        "set-timezone",
+        "regex",
+        "case-sensitivity-string-filter-options",
+        "binning",
+        "inner-join",
+        "advanced-math-expressions"
+      ],
+      "cache_field_values_schedule": "0 0 0 * * ? *",
+      "timezone": "UTC",
+      "auto_run_queries": true,
+      "metadata_sync_schedule": "0 0 * * * ? *",
+      "name": "kanban",
+      "caveats": null,
+      "tables": [
+        {
+          "description": null,
+          "entity_type": "entity/GenericTable",
+          "schema": "public",
+          "show_in_getting_started": false,
+          "name": "kanban_board",
+          "fields": [
+            {
+              "description": null,
+              "database_type": "serial",
+              "table_id": 12,
+              "special_type": "type/PK",
+              "name": "id",
+              "fingerprint_version": 0,
+              "has_field_values": "none",
+              "settings": null,
+              "caveats": null,
+              "fk_target_field_id": null,
+              "updated_at": "2020-09-07T20:00:00.347",
+              "custom_position": 0,
+              "active": true,
+              "parent_id": null,
+              "id": 64,
+              "last_analyzed": null,
+              "position": 0,
+              "visibility_type": "normal",
+              "target": null,
+              "preview_display": true,
+              "display_name": "ID",
+              "database_position": 0,
+              "fingerprint": null,
+              "created_at": "2020-09-07T20:00:00.347",
+              "base_type": "type/Integer",
+              "points_of_interest": null
+            },
+            {
+              "description": "Board name",
+              "database_type": "varchar",
+              "table_id": 12,
+              "special_type": "type/Name",
+              "name": "name",
+              "fingerprint_version": 4,
+              "has_field_values": "list",
+              "settings": null,
+              "caveats": null,
+              "fk_target_field_id": null,
+              "updated_at": "2020-09-07T22:39:05.793",
+              "custom_position": 0,
+              "active": true,
+              "parent_id": null,
+              "id": 63,
+              "last_analyzed": "2020-09-07T21:00:00.607",
+              "position": 1,
+              "visibility_type": "normal",
+              "target": null,
+              "preview_display": true,
+              "display_name": "Board name",
+              "database_position": 1,
+              "fingerprint": {
+                "global": {
+                  "distinct-count": 4,
+                  "nil%": 0.0
+                },
+                "type": {
+                  "type/Text": {
+                    "percent-json": 0.0,
+                    "percent-url": 0.0,
+                    "percent-email": 0.0,
+                    "average-length": 7.0
+                  }
+                }
+              },
+              "created_at": "2020-09-07T20:00:00.346",
+              "base_type": "type/Text",
+              "points_of_interest": null
+            }
+          ],
+          "caveats": null,
+          "updated_at": "2020-09-07T20:00:00.819",
+          "entity_name": null,
+          "active": true,
+          "id": 12,
+          "db_id": 2,
+          "visibility_type": null,
+          "field_order": "database",
+          "display_name": "Kan Ban Board",
+          "created_at": "2020-09-07T20:00:00.098",
+          "points_of_interest": null
+        },
+        {
+          "description": null,
+          "entity_type": "entity/GenericTable",
+          "schema": "public",
+          "show_in_getting_started": false,
+          "name": "kanban_card",
+          "fields": [
+            {
+              "description": null,
+              "database_type": "varchar",
+              "table_id": 10,
+              "special_type": "type/PK",
+              "name": "id",
+              "fingerprint_version": 0,
+              "has_field_values": "search",
+              "settings": null,
+              "caveats": null,
+              "fk_target_field_id": null,
+              "updated_at": "2020-09-06T22:21:41.277",
+              "custom_position": 0,
+              "active": true,
+              "parent_id": null,
+              "id": 56,
+              "last_analyzed": null,
+              "position": 0,
+              "visibility_type": "normal",
+              "target": null,
+              "preview_display": true,
+              "display_name": "ID",
+              "database_position": 0,
+              "fingerprint": null,
+              "created_at": "2020-09-06T22:21:41.277",
+              "base_type": "type/Text",
+              "points_of_interest": null
+            },
+            {
+              "description": null,
+              "database_type": "int4",
+              "table_id": 10,
+              "special_type": "type/FK",
+              "name": "board_id",
+              "fingerprint_version": 4,
+              "has_field_values": "none",
+              "settings": null,
+              "caveats": null,
+              "fk_target_field_id": 64,
+              "updated_at": "2020-09-07T21:00:00.519",
+              "custom_position": 0,
+              "active": true,
+              "parent_id": null,
+              "id": 62,
+              "last_analyzed": "2020-09-07T21:00:00.607",
+              "position": 1,
+              "visibility_type": "normal",
+              "target": {
+                "description": null,
+                "database_type": "serial",
+                "table_id": 12,
+                "special_type": "type/PK",
+                "name": "id",
+                "fingerprint_version": 0,
+                "has_field_values": "none",
+                "settings": null,
+                "caveats": null,
+                "fk_target_field_id": null,
+                "updated_at": "2020-09-07T20:00:00.347",
+                "custom_position": 0,
+                "active": true,
+                "parent_id": null,
+                "id": 64,
+                "last_analyzed": null,
+                "position": 0,
+                "visibility_type": "normal",
+                "preview_display": true,
+                "display_name": "ID",
+                "database_position": 0,
+                "fingerprint": null,
+                "created_at": "2020-09-07T20:00:00.347",
+                "base_type": "type/Integer",
+                "points_of_interest": null
+              },
+              "preview_display": true,
+              "display_name": "Board ID",
+              "database_position": 1,
+              "fingerprint": {
+                "global": {
+                  "distinct-count": 4,
+                  "nil%": 0.0
+                }
+              },
+              "created_at": "2020-09-07T20:00:00.272",
+              "base_type": "type/Integer",
+              "points_of_interest": null
+            },
+            {
+              "description": null,
+              "database_type": "bool",
+              "table_id": 10,
+              "special_type": "type/Category",
+              "name": "waste",
+              "fingerprint_version": 4,
+              "has_field_values": "list",
+              "settings": null,
+              "caveats": null,
+              "fk_target_field_id": null,
+              "updated_at": "2020-09-07T21:51:36.928",
+              "custom_position": 0,
+              "active": true,
+              "parent_id": null,
+              "id": 57,
+              "last_analyzed": "2020-09-07T15:00:01.395",
+              "position": 1,
+              "visibility_type": "normal",
+              "target": null,
+              "preview_display": true,
+              "display_name": "Waste",
+              "database_position": 4,
+              "fingerprint": {
+                "global": {
+                  "distinct-count": 2,
+                  "nil%": 0.0
+                }
+              },
+              "created_at": "2020-09-06T22:21:41.278",
+              "base_type": "type/Boolean",
+              "points_of_interest": null
+            },
+            {
+              "description": null,
+              "database_type": "int4",
+              "table_id": 10,
+              "special_type": "type/FK",
+              "name": "class_of_service_id",
+              "fingerprint_version": 4,
+              "has_field_values": "none",
+              "settings": null,
+              "caveats": null,
+              "fk_target_field_id": 68,
+              "updated_at": "2020-09-07T21:51:37.29",
+              "custom_position": 0,
+              "active": true,
+              "parent_id": null,
+              "id": 66,
+              "last_analyzed": "2020-09-07T21:51:37.356",
+              "position": 2,
+              "visibility_type": "normal",
+              "target": {
+                "description": null,
+                "database_type": "serial",
+                "table_id": 13,
+                "special_type": "type/PK",
+                "name": "id",
+                "fingerprint_version": 0,
+                "has_field_values": "none",
+                "settings": null,
+                "caveats": null,
+                "fk_target_field_id": null,
+                "updated_at": "2020-09-07T21:51:36.984",
+                "custom_position": 0,
+                "active": true,
+                "parent_id": null,
+                "id": 68,
+                "last_analyzed": null,
+                "position": 0,
+                "visibility_type": "normal",
+                "preview_display": true,
+                "display_name": "ID",
+                "database_position": 0,
+                "fingerprint": null,
+                "created_at": "2020-09-07T21:51:36.984",
+                "base_type": "type/Integer",
+                "points_of_interest": null
+              },
+              "preview_display": true,
+              "display_name": "Class Of Service ID",
+              "database_position": 2,
+              "fingerprint": {
+                "global": {
+                  "distinct-count": 5,
+                  "nil%": 0.0
+                }
+              },
+              "created_at": "2020-09-07T21:51:36.913",
+              "base_type": "type/Integer",
+              "points_of_interest": null
+            },
+            {
+              "description": null,
+              "database_type": "bool",
+              "table_id": 10,
+              "special_type": "type/Category",
+              "name": "closed",
+              "fingerprint_version": 4,
+              "has_field_values": "list",
+              "settings": null,
+              "caveats": null,
+              "fk_target_field_id": null,
+              "updated_at": "2020-09-07T21:51:36.926",
+              "custom_position": 0,
+              "active": true,
+              "parent_id": null,
+              "id": 55,
+              "last_analyzed": "2020-09-07T15:00:01.395",
+              "position": 2,
+              "visibility_type": "normal",
+              "target": null,
+              "preview_display": true,
+              "display_name": "Closed",
+              "database_position": 5,
+              "fingerprint": {
+                "global": {
+                  "distinct-count": 1,
+                  "nil%": 0.0
+                }
+              },
+              "created_at": "2020-09-06T22:21:41.276",
+              "base_type": "type/Boolean",
+              "points_of_interest": null
+            },
+            {
+              "description": null,
+              "database_type": "bool",
+              "table_id": 10,
+              "special_type": "type/Category",
+              "name": "rework",
+              "fingerprint_version": 4,
+              "has_field_values": "list",
+              "settings": null,
+              "caveats": null,
+              "fk_target_field_id": null,
+              "updated_at": "2020-09-07T21:51:37.333",
+              "custom_position": 0,
+              "active": true,
+              "parent_id": null,
+              "id": 65,
+              "last_analyzed": "2020-09-07T21:51:37.356",
+              "position": 3,
+              "visibility_type": "normal",
+              "target": null,
+              "preview_display": true,
+              "display_name": "Rework",
+              "database_position": 3,
+              "fingerprint": {
+                "global": {
+                  "distinct-count": 1,
+                  "nil%": 0.0
+                }
+              },
+              "created_at": "2020-09-07T21:51:36.912",
+              "base_type": "type/Boolean",
+              "points_of_interest": null
+            }
+          ],
+          "caveats": null,
+          "updated_at": "2020-09-06T22:21:42.056",
+          "entity_name": null,
+          "active": true,
+          "id": 10,
+          "db_id": 2,
+          "visibility_type": null,
+          "field_order": "database",
+          "display_name": "Kan Ban Card",
+          "created_at": "2020-09-06T22:21:41.073",
+          "points_of_interest": null
+        },
+        {
+          "description": null,
+          "entity_type": "entity/GenericTable",
+          "schema": "public",
+          "show_in_getting_started": false,
+          "name": "kanban_card_time",
+          "fields": [
+            {
+              "description": null,
+              "database_type": "serial",
+              "table_id": 6,
+              "special_type": "type/PK",
+              "name": "id",
+              "fingerprint_version": 0,
+              "has_field_values": "none",
+              "settings": null,
+              "caveats": null,
+              "fk_target_field_id": null,
+              "updated_at": "2020-09-06T22:21:41.166",
+              "custom_position": 0,
+              "active": true,
+              "parent_id": null,
+              "id": 40,
+              "last_analyzed": null,
+              "position": 0,
+              "visibility_type": "normal",
+              "target": null,
+              "preview_display": true,
+              "display_name": "ID",
+              "database_position": 0,
+              "fingerprint": null,
+              "created_at": "2020-09-06T22:21:41.166",
+              "base_type": "type/Integer",
+              "points_of_interest": null
+            },
+            {
+              "description": "Lead, Cycle or Touch time",
+              "database_type": "varchar",
+              "table_id": 6,
+              "special_type": "type/Category",
+              "name": "type",
+              "fingerprint_version": 4,
+              "has_field_values": "list",
+              "settings": null,
+              "caveats": null,
+              "fk_target_field_id": null,
+              "updated_at": "2020-09-07T22:39:46.383",
+              "custom_position": 0,
+              "active": true,
+              "parent_id": null,
+              "id": 42,
+              "last_analyzed": "2020-09-07T16:00:01.036",
+              "position": 1,
+              "visibility_type": "normal",
+              "target": null,
+              "preview_display": true,
+              "display_name": "Timing Type",
+              "database_position": 1,
+              "fingerprint": {
+                "global": {
+                  "distinct-count": 3,
+                  "nil%": 0.0
+                },
+                "type": {
+                  "type/Text": {
+                    "percent-json": 0.0,
+                    "percent-url": 0.0,
+                    "percent-email": 0.0,
+                    "average-length": 4.666666666666667
+                  }
+                }
+              },
+              "created_at": "2020-09-06T22:21:41.167",
+              "base_type": "type/Text",
+              "points_of_interest": null
+            },
+            {
+              "description": null,
+              "database_type": "int4",
+              "table_id": 6,
+              "special_type": null,
+              "name": "time",
+              "fingerprint_version": 4,
+              "has_field_values": "list",
+              "settings": null,
+              "caveats": null,
+              "fk_target_field_id": null,
+              "updated_at": "2020-09-07T16:00:01.004",
+              "custom_position": 0,
+              "active": true,
+              "parent_id": null,
+              "id": 41,
+              "last_analyzed": "2020-09-07T16:00:01.036",
+              "position": 2,
+              "visibility_type": "normal",
+              "target": null,
+              "preview_display": true,
+              "display_name": "Time",
+              "database_position": 2,
+              "fingerprint": {
+                "global": {
+                  "distinct-count": 66,
+                  "nil%": 0.0
+                },
+                "type": {
+                  "type/Number": {
+                    "min": 1.0,
+                    "q1": 3.458385672670307,
+                    "q3": 14.736847308069326,
+                    "max": 72.0,
+                    "sd": 9.966254983960882,
+                    "avg": 10.65598685561717
+                  }
+                }
+              },
+              "created_at": "2020-09-06T22:21:41.167",
+              "base_type": "type/Integer",
+              "points_of_interest": null
+            },
+            {
+              "description": null,
+              "database_type": "date",
+              "table_id": 6,
+              "special_type": "type/CreationDate",
+              "name": "start_date",
+              "fingerprint_version": 4,
+              "has_field_values": "none",
+              "settings": null,
+              "caveats": null,
+              "fk_target_field_id": null,
+              "updated_at": "2020-09-07T16:00:01.011",
+              "custom_position": 0,
+              "active": true,
+              "parent_id": null,
+              "id": 43,
+              "last_analyzed": "2020-09-07T16:00:01.036",
+              "position": 3,
+              "visibility_type": "normal",
+              "target": null,
+              "preview_display": true,
+              "display_name": "Start Date",
+              "database_position": 3,
+              "fingerprint": {
+                "global": {
+                  "distinct-count": 251,
+                  "nil%": 0.0
+                },
+                "type": {
+                  "type/DateTime": {
+                    "earliest": "2020-01-02",
+                    "latest": "2020-09-08"
+                  }
+                }
+              },
+              "created_at": "2020-09-06T22:21:41.168",
+              "base_type": "type/Date",
+              "points_of_interest": null
+            },
+            {
+              "description": null,
+              "database_type": "date",
+              "table_id": 6,
+              "special_type": null,
+              "name": "end_date",
+              "fingerprint_version": 4,
+              "has_field_values": "none",
+              "settings": null,
+              "caveats": null,
+              "fk_target_field_id": null,
+              "updated_at": "2020-09-07T16:00:00.95",
+              "custom_position": 0,
+              "active": true,
+              "parent_id": null,
+              "id": 44,
+              "last_analyzed": "2020-09-07T16:00:01.036",
+              "position": 4,
+              "visibility_type": "normal",
+              "target": null,
+              "preview_display": true,
+              "display_name": "End Date",
+              "database_position": 4,
+              "fingerprint": {
+                "global": {
+                  "distinct-count": 283,
+                  "nil%": 0.0
+                },
+                "type": {
+                  "type/DateTime": {
+                    "earliest": "2020-01-03",
+                    "latest": "2020-10-27"
+                  }
+                }
+              },
+              "created_at": "2020-09-06T22:21:41.168",
+              "base_type": "type/Date",
+              "points_of_interest": null
+            },
+            {
+              "description": null,
+              "database_type": "varchar",
+              "table_id": 6,
+              "special_type": "type/FK",
+              "name": "card_id",
+              "fingerprint_version": 4,
+              "has_field_values": "search",
+              "settings": null,
+              "caveats": null,
+              "fk_target_field_id": 56,
+              "updated_at": "2020-09-07T16:00:00.948",
+              "custom_position": 0,
+              "active": true,
+              "parent_id": null,
+              "id": 39,
+              "last_analyzed": "2020-09-07T16:00:01.036",
+              "position": 5,
+              "visibility_type": "normal",
+              "target": {
+                "description": null,
+                "database_type": "varchar",
+                "table_id": 10,
+                "special_type": "type/PK",
+                "name": "id",
+                "fingerprint_version": 0,
+                "has_field_values": "search",
+                "settings": null,
+                "caveats": null,
+                "fk_target_field_id": null,
+                "updated_at": "2020-09-06T22:21:41.277",
+                "custom_position": 0,
+                "active": true,
+                "parent_id": null,
+                "id": 56,
+                "last_analyzed": null,
+                "position": 0,
+                "visibility_type": "normal",
+                "preview_display": true,
+                "display_name": "ID",
+                "database_position": 0,
+                "fingerprint": null,
+                "created_at": "2020-09-06T22:21:41.277",
+                "base_type": "type/Text",
+                "points_of_interest": null
+              },
+              "preview_display": true,
+              "display_name": "Card ID",
+              "database_position": 5,
+              "fingerprint": {
+                "global": {
+                  "distinct-count": 1623,
+                  "nil%": 0.0
+                }
+              },
+              "created_at": "2020-09-06T22:21:41.166",
+              "base_type": "type/Text",
+              "points_of_interest": null
+            }
+          ],
+          "caveats": null,
+          "updated_at": "2020-09-06T22:21:42.039",
+          "entity_name": null,
+          "active": true,
+          "id": 6,
+          "db_id": 2,
+          "visibility_type": null,
+          "field_order": "database",
+          "display_name": "Kan Ban Card Time",
+          "created_at": "2020-09-06T22:21:41.044",
+          "points_of_interest": null
+        },
+        {
+          "description": null,
+          "entity_type": "entity/GenericTable",
+          "schema": "public",
+          "show_in_getting_started": false,
+          "name": "kanban_class_of_service",
+          "fields": [
+            {
+              "description": null,
+              "database_type": "serial",
+              "table_id": 13,
+              "special_type": "type/PK",
+              "name": "id",
+              "fingerprint_version": 0,
+              "has_field_values": "none",
+              "settings": null,
+              "caveats": null,
+              "fk_target_field_id": null,
+              "updated_at": "2020-09-07T21:51:36.984",
+              "custom_position": 0,
+              "active": true,
+              "parent_id": null,
+              "id": 68,
+              "last_analyzed": null,
+              "position": 0,
+              "visibility_type": "normal",
+              "target": null,
+              "preview_display": true,
+              "display_name": "ID",
+              "database_position": 0,
+              "fingerprint": null,
+              "created_at": "2020-09-07T21:51:36.984",
+              "base_type": "type/Integer",
+              "points_of_interest": null
+            },
+            {
+              "description": "Class of Service Name",
+              "database_type": "varchar",
+              "table_id": 13,
+              "special_type": "type/Name",
+              "name": "name",
+              "fingerprint_version": 4,
+              "has_field_values": "list",
+              "settings": null,
+              "caveats": null,
+              "fk_target_field_id": null,
+              "updated_at": "2020-09-07T22:38:33.236",
+              "custom_position": 0,
+              "active": true,
+              "parent_id": null,
+              "id": 67,
+              "last_analyzed": "2020-09-07T21:51:37.356",
+              "position": 1,
+              "visibility_type": "normal",
+              "target": null,
+              "preview_display": true,
+              "display_name": "Class of Service Name",
+              "database_position": 1,
+              "fingerprint": {
+                "global": {
+                  "distinct-count": 5,
+                  "nil%": 0.0
+                },
+                "type": {
+                  "type/Text": {
+                    "percent-json": 0.0,
+                    "percent-url": 0.0,
+                    "percent-email": 0.0,
+                    "average-length": 7.8
+                  }
+                }
+              },
+              "created_at": "2020-09-07T21:51:36.983",
+              "base_type": "type/Text",
+              "points_of_interest": null
+            }
+          ],
+          "caveats": null,
+          "updated_at": "2020-09-07T21:51:37.352",
+          "entity_name": null,
+          "active": true,
+          "id": 13,
+          "db_id": 2,
+          "visibility_type": null,
+          "field_order": "database",
+          "display_name": "Kan Ban Class Of Service",
+          "created_at": "2020-09-07T21:51:36.723",
+          "points_of_interest": null
+        },
+        {
+          "description": null,
+          "entity_type": "entity/GenericTable",
+          "schema": "public",
+          "show_in_getting_started": false,
+          "name": "kanban_column",
+          "fields": [
+            {
+              "description": null,
+              "database_type": "serial",
+              "table_id": 9,
+              "special_type": "type/PK",
+              "name": "id",
+              "fingerprint_version": 0,
+              "has_field_values": "none",
+              "settings": null,
+              "caveats": null,
+              "fk_target_field_id": null,
+              "updated_at": "2020-09-06T22:21:41.251",
+              "custom_position": 0,
+              "active": true,
+              "parent_id": null,
+              "id": 54,
+              "last_analyzed": null,
+              "position": 0,
+              "visibility_type": "normal",
+              "target": null,
+              "preview_display": true,
+              "display_name": "ID",
+              "database_position": 0,
+              "fingerprint": null,
+              "created_at": "2020-09-06T22:21:41.251",
+              "base_type": "type/Integer",
+              "points_of_interest": null
+            },
+            {
+              "description": null,
+              "database_type": "varchar",
+              "table_id": 9,
+              "special_type": "type/Name",
+              "name": "name",
+              "fingerprint_version": 4,
+              "has_field_values": "list",
+              "settings": null,
+              "caveats": null,
+              "fk_target_field_id": null,
+              "updated_at": "2020-09-08T00:47:26.855",
+              "custom_position": 0,
+              "active": true,
+              "parent_id": null,
+              "id": 53,
+              "last_analyzed": "2020-09-06T22:21:42.066",
+              "position": 1,
+              "visibility_type": "normal",
+              "target": null,
+              "preview_display": true,
+              "display_name": "Column Name",
+              "database_position": 1,
+              "fingerprint": {
+                "global": {
+                  "distinct-count": 5,
+                  "nil%": 0.0
+                },
+                "type": {
+                  "type/Text": {
+                    "percent-json": 0.0,
+                    "percent-url": 0.0,
+                    "percent-email": 0.0,
+                    "average-length": 5.4
+                  }
+                }
+              },
+              "created_at": "2020-09-06T22:21:41.25",
+              "base_type": "type/Text",
+              "points_of_interest": null
+            },
+            {
+              "description": null,
+              "database_type": "int4",
+              "table_id": 9,
+              "special_type": "type/Category",
+              "name": "order",
+              "fingerprint_version": 4,
+              "has_field_values": "list",
+              "settings": null,
+              "caveats": null,
+              "fk_target_field_id": null,
+              "updated_at": "2020-09-08T00:47:53.945",
+              "custom_position": 0,
+              "active": true,
+              "parent_id": null,
+              "id": 52,
+              "last_analyzed": "2020-09-06T22:21:42.066",
+              "position": 2,
+              "visibility_type": "normal",
+              "target": null,
+              "preview_display": true,
+              "display_name": "Column Order",
+              "database_position": 2,
+              "fingerprint": {
+                "global": {
+                  "distinct-count": 5,
+                  "nil%": 0.0
+                },
+                "type": {
+                  "type/Number": {
+                    "min": 1.0,
+                    "q1": 1.75,
+                    "q3": 4.25,
+                    "max": 5.0,
+                    "sd": 1.5811388300841898,
+                    "avg": 3.0
+                  }
+                }
+              },
+              "created_at": "2020-09-06T22:21:41.25",
+              "base_type": "type/Integer",
+              "points_of_interest": null
+            },
+            {
+              "description": null,
+              "database_type": "int4",
+              "table_id": 9,
+              "special_type": "type/FK",
+              "name": "board_id",
+              "fingerprint_version": 4,
+              "has_field_values": "none",
+              "settings": null,
+              "caveats": null,
+              "fk_target_field_id": 64,
+              "updated_at": "2020-09-07T21:00:00.469",
+              "custom_position": 0,
+              "active": true,
+              "parent_id": null,
+              "id": 61,
+              "last_analyzed": "2020-09-07T21:00:00.607",
+              "position": 3,
+              "visibility_type": "normal",
+              "target": {
+                "description": null,
+                "database_type": "serial",
+                "table_id": 12,
+                "special_type": "type/PK",
+                "name": "id",
+                "fingerprint_version": 0,
+                "has_field_values": "none",
+                "settings": null,
+                "caveats": null,
+                "fk_target_field_id": null,
+                "updated_at": "2020-09-07T20:00:00.347",
+                "custom_position": 0,
+                "active": true,
+                "parent_id": null,
+                "id": 64,
+                "last_analyzed": null,
+                "position": 0,
+                "visibility_type": "normal",
+                "preview_display": true,
+                "display_name": "ID",
+                "database_position": 0,
+                "fingerprint": null,
+                "created_at": "2020-09-07T20:00:00.347",
+                "base_type": "type/Integer",
+                "points_of_interest": null
+              },
+              "preview_display": true,
+              "display_name": "Board ID",
+              "database_position": 3,
+              "fingerprint": {
+                "global": {
+                  "distinct-count": 4,
+                  "nil%": 0.0
+                }
+              },
+              "created_at": "2020-09-07T20:00:00.244",
+              "base_type": "type/Integer",
+              "points_of_interest": null
+            }
+          ],
+          "caveats": null,
+          "updated_at": "2020-09-06T22:21:42.053",
+          "entity_name": null,
+          "active": true,
+          "id": 9,
+          "db_id": 2,
+          "visibility_type": null,
+          "field_order": "database",
+          "display_name": "Kan Ban Column",
+          "created_at": "2020-09-06T22:21:41.068",
+          "points_of_interest": null
+        },
+        {
+          "description": null,
+          "entity_type": "entity/GenericTable",
+          "schema": "public",
+          "show_in_getting_started": false,
+          "name": "kanban_day",
+          "fields": [
+            {
+              "description": null,
+              "database_type": "serial",
+              "table_id": 7,
+              "special_type": "type/PK",
+              "name": "id",
+              "fingerprint_version": 0,
+              "has_field_values": "none",
+              "settings": null,
+              "caveats": null,
+              "fk_target_field_id": null,
+              "updated_at": "2020-09-06T22:21:41.193",
+              "custom_position": 0,
+              "active": true,
+              "parent_id": null,
+              "id": 45,
+              "last_analyzed": null,
+              "position": 0,
+              "visibility_type": "normal",
+              "target": null,
+              "preview_display": true,
+              "display_name": "ID",
+              "database_position": 0,
+              "fingerprint": null,
+              "created_at": "2020-09-06T22:21:41.193",
+              "base_type": "type/Integer",
+              "points_of_interest": null
+            },
+            {
+              "description": null,
+              "database_type": "date",
+              "table_id": 7,
+              "special_type": null,
+              "name": "date",
+              "fingerprint_version": 4,
+              "has_field_values": "none",
+              "settings": null,
+              "caveats": null,
+              "fk_target_field_id": null,
+              "updated_at": "2020-09-06T22:21:41.866",
+              "custom_position": 0,
+              "active": true,
+              "parent_id": null,
+              "id": 48,
+              "last_analyzed": "2020-09-06T22:21:42.066",
+              "position": 1,
+              "visibility_type": "normal",
+              "target": null,
+              "preview_display": true,
+              "display_name": "Date",
+              "database_position": 1,
+              "fingerprint": {
+                "global": {
+                  "distinct-count": 2000,
+                  "nil%": 0.0
+                },
+                "type": {
+                  "type/DateTime": {
+                    "earliest": "2016-01-02",
+                    "latest": "2021-06-23"
+                  }
+                }
+              },
+              "created_at": "2020-09-06T22:21:41.196",
+              "base_type": "type/Date",
+              "points_of_interest": null
+            },
+            {
+              "description": null,
+              "database_type": "int4",
+              "table_id": 7,
+              "special_type": "type/FK",
+              "name": "column_id",
+              "fingerprint_version": 4,
+              "has_field_values": "none",
+              "settings": null,
+              "caveats": null,
+              "fk_target_field_id": 54,
+              "updated_at": "2020-09-06T22:21:41.864",
+              "custom_position": 0,
+              "active": true,
+              "parent_id": null,
+              "id": 46,
+              "last_analyzed": "2020-09-06T22:21:42.066",
+              "position": 2,
+              "visibility_type": "normal",
+              "target": {
+                "description": null,
+                "database_type": "serial",
+                "table_id": 9,
+                "special_type": "type/PK",
+                "name": "id",
+                "fingerprint_version": 0,
+                "has_field_values": "none",
+                "settings": null,
+                "caveats": null,
+                "fk_target_field_id": null,
+                "updated_at": "2020-09-06T22:21:41.251",
+                "custom_position": 0,
+                "active": true,
+                "parent_id": null,
+                "id": 54,
+                "last_analyzed": null,
+                "position": 0,
+                "visibility_type": "normal",
+                "preview_display": true,
+                "display_name": "ID",
+                "database_position": 0,
+                "fingerprint": null,
+                "created_at": "2020-09-06T22:21:41.251",
+                "base_type": "type/Integer",
+                "points_of_interest": null
+              },
+              "preview_display": true,
+              "display_name": "Column ID",
+              "database_position": 2,
+              "fingerprint": {
+                "global": {
+                  "distinct-count": 5,
+                  "nil%": 0.0
+                }
+              },
+              "created_at": "2020-09-06T22:21:41.193",
+              "base_type": "type/Integer",
+              "points_of_interest": null
+            },
+            {
+              "description": null,
+              "database_type": "int4",
+              "table_id": 7,
+              "special_type": "type/Quantity",
+              "name": "count",
+              "fingerprint_version": 4,
+              "has_field_values": "none",
+              "settings": null,
+              "caveats": null,
+              "fk_target_field_id": null,
+              "updated_at": "2020-09-06T22:21:42.015",
+              "custom_position": 0,
+              "active": true,
+              "parent_id": null,
+              "id": 47,
+              "last_analyzed": "2020-09-06T22:21:42.066",
+              "position": 3,
+              "visibility_type": "normal",
+              "target": null,
+              "preview_display": true,
+              "display_name": "Count",
+              "database_position": 3,
+              "fingerprint": {
+                "global": {
+                  "distinct-count": 1483,
+                  "nil%": 0.0
+                },
+                "type": {
+                  "type/Number": {
+                    "min": 0.0,
+                    "q1": 4.039038939120705,
+                    "q3": 52.25955969745206,
+                    "max": 2926.0,
+                    "sd": 696.6566978108715,
+                    "avg": 298.1027
+                  }
+                }
+              },
+              "created_at": "2020-09-06T22:21:41.194",
+              "base_type": "type/Integer",
+              "points_of_interest": null
+            },
+            {
+              "description": null,
+              "database_type": "int4",
+              "table_id": 7,
+              "special_type": "type/FK",
+              "name": "class_of_service_id",
+              "fingerprint_version": 4,
+              "has_field_values": "none",
+              "settings": null,
+              "caveats": null,
+              "fk_target_field_id": 68,
+              "updated_at": "2020-09-08T01:00:00.374",
+              "custom_position": 0,
+              "active": true,
+              "parent_id": null,
+              "id": 69,
+              "last_analyzed": "2020-09-08T01:00:00.414",
+              "position": 4,
+              "visibility_type": "normal",
+              "target": {
+                "description": null,
+                "database_type": "serial",
+                "table_id": 13,
+                "special_type": "type/PK",
+                "name": "id",
+                "fingerprint_version": 0,
+                "has_field_values": "none",
+                "settings": null,
+                "caveats": null,
+                "fk_target_field_id": null,
+                "updated_at": "2020-09-07T21:51:36.984",
+                "custom_position": 0,
+                "active": true,
+                "parent_id": null,
+                "id": 68,
+                "last_analyzed": null,
+                "position": 0,
+                "visibility_type": "normal",
+                "preview_display": true,
+                "display_name": "ID",
+                "database_position": 0,
+                "fingerprint": null,
+                "created_at": "2020-09-07T21:51:36.984",
+                "base_type": "type/Integer",
+                "points_of_interest": null
+              },
+              "preview_display": true,
+              "display_name": "Class Of Service ID",
+              "database_position": 4,
+              "fingerprint": {
+                "global": {
+                  "distinct-count": 5,
+                  "nil%": 0.0
+                }
+              },
+              "created_at": "2020-09-08T00:00:00.32",
+              "base_type": "type/Integer",
+              "points_of_interest": null
+            }
+          ],
+          "caveats": null,
+          "updated_at": "2020-09-06T22:21:42.041",
+          "entity_name": null,
+          "active": true,
+          "id": 7,
+          "db_id": 2,
+          "visibility_type": null,
+          "field_order": "database",
+          "display_name": "Kan Ban Day",
+          "created_at": "2020-09-06T22:21:41.056",
+          "points_of_interest": null
+        }
+      ],
+      "is_full_sync": true,
+      "updated_at": "2020-09-06T22:21:40.984",
+      "details": {
+        "host": "postgres",
+        "port": null,
+        "dbname": "kanban_metrics",
+        "user": "postgres",
+        "password": null,
+        "ssl": false,
+        "additional-options": null,
+        "tunnel-enabled": false
+      },
+      "is_sample": false,
+      "id": 2,
+      "is_on_demand": false,
+      "options": null,
+      "schedules": {
+        "cache_field_values": {
+          "schedule_day": null,
+          "schedule_frame": null,
+          "schedule_hour": 0,
+          "schedule_type": "daily"
+        },
+        "metadata_sync": {
+          "schedule_day": null,
+          "schedule_frame": null,
+          "schedule_hour": null,
+          "schedule_type": "hourly"
+        }
+      },
+      "engine": "postgres",
+      "created_at": "2020-09-06T22:21:40.664",
+      "points_of_interest": null
+    }
+  ]
+}
