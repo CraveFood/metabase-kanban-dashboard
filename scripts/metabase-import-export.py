@@ -8,8 +8,6 @@ import requests
 import sys
 from copy import deepcopy
 
-SCRIPT_DIR = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
-
 METABASE_CONFIG = {}
 
 DATABASES_CACHE = []
