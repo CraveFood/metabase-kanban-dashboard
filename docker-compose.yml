@@ -19,11 +19,12 @@ services:
       - MGID=${GID}
       - MB_DB_FILE=/metabase.db
 
-  kanban-reports:
+  kanban-dash:
     build: .
-    # repo it's just a few scripts. This is a dirty hack to keep the container running
-    command: bash -c "sleep infinity"
     depends_on:
       - postgres
     volumes:
       - .:/code
+    working_dir: /code/kanbandash
+    environment:
+      - KANBANDASH_DATABASE_URL=postgresql://postgres@postgres/kanban_metrics

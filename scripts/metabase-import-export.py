@@ -3,7 +3,6 @@
 import argparse
 import getpass
 import json
-import os
 import requests
 import sys
 from copy import deepcopy
@@ -20,9 +19,12 @@ SESSION = requests.Session()
 
 
 def call_api(method, uri, json=None, params=None):
-    url = METABASE_CONFIG['url'] + uri
+    url = METABASE_CONFIG["url"] + uri
     response = SESSION.request(
-        method, url, json=json, params=params,
+        method,
+        url,
+        json=json,
+        params=params,
     )
     if response.status_code == requests.codes.not_found:
         print("Not found: {}".format(url))
@@ -211,7 +213,7 @@ def export_collection(collection_id, file_path):
 
 
 def get_db_names(data, source):
-    return ["{} ({} - {})".format(db['name'], db['id'], source) for db in data]
+    return ["{} ({} - {})".format(db["name"], db["id"], source) for db in data]
 
 
 def map_databases(exported_databases):
@@ -236,7 +238,7 @@ def map_databases(exported_databases):
 
             try:
                 if int(selection) in db_ids:
-                    DB_MAPPING[exported_db['id']] = int(selection)
+                    DB_MAPPING[exported_db["id"]] = int(selection)
                     break
                 else:
                     print("\n*** Invalid selection ***\n")
@@ -391,7 +393,7 @@ def main():
     parser = get_argparser()
     args = parser.parse_args()
 
-    METABASE_CONFIG['url'] = args.url
+    METABASE_CONFIG["url"] = args.url
 
     password = getpass.getpass("Password for user {}: ".format(args.username))
     login_response = login(args.username, password)

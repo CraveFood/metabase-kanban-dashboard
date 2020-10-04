@@ -9,7 +9,7 @@ import string
 from collections import Counter
 from itertools import chain
 
-from models import (
+from .models import (
     KanbanBoard,
     KanbanCard,
     KanbanCardTime,
@@ -164,7 +164,7 @@ def generate_kanban_cards(n, m):
     factories_session.commit()
 
 
-def generate_data():
+def generate_data(args=None):
     generate_class_of_services()
     generate_boards(4)
     generate_kanban_days()
