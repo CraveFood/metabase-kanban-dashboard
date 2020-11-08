@@ -59,12 +59,21 @@ After creating the collection you will have to access it in order to get the col
 Now we are ready to run the collection import script:
 
 ```
-./scripts/metabase-import-export.py \
+kanban-dash metabase --import \
     --username=<your-user-name> \
-    import \
     --collection-id=<your-collection-id> \
-    --import-file=kanbandash/kanban-dashboards.json
+    --url=<your-metabase-url>
 ```
+
+or using our docker container:
+
+```
+docker run -it cravefood/kanban-dash kanban-dash metabase --import \
+    --username=<your-user-name> \
+    --collection-id=<your-collection-id> \
+    --url=<your-metabase-url>
+```
+
 
 After running the script you should be able to access the collection and see the imported reports. Select "Kanban" in the dashboards tab to see the dashboard without any data.
 

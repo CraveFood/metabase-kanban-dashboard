@@ -6,6 +6,13 @@ import pathlib
 from alembic import command
 from alembic.config import Config
 
+from metabase_import_export import (
+    export_collection,
+    import_collection,
+    metabase_login,
+    set_metabase_url,
+)
+
 from . import models
 
 from .populate_with_test_data import generate_data
@@ -37,12 +44,14 @@ def get_tables():
 
 def drop_tables():
     tables = get_tables()
-    models.Base.metadata.drop_all(models.SQLALCHEMY_ENGINE, tables=tables)
+    engine = models.get_db_engine()
+    models.Base.metadata.drop_all(engine, tables=tables)
 
 
 def create_tables():
     tables = get_tables()
-    models.Base.metadata.create_all(models.SQLALCHEMY_ENGINE, tables=tables)
+    engine = models.get_db_engine()
+    models.Base.metadata.create_all(engine, tables=tables)
     migrate_schema()
 
 
@@ -66,11 +75,58 @@ def manage_models(args):
         migrate_schema()
 
 
+def manage_metabase(args):
+    set_metabase_url(args.url)
+    metabase_login(args.username)
+
+    if args.export:
+        print("Where to you want to store your Kanban definitions?")
+        kanban_definitions_file = input(">> ")
+        export_collection(kanban_definitions_file, args.collection_id)
+    else:
+        kanban_definitions_file = os.path.join(SCRIPT_DIR, "kanban-dashboards.json")
+        import_collection(kanban_definitions_file, args.collection_id)
+
+
 def get_argparser():
     parser = argparse.ArgumentParser(
         description="Metabase Kanban Dashboard manager",
     )
     subparsers = parser.add_subparsers()
+
+    # metabase subparsers
+    metabase = subparsers.add_parser("metabase")
+    import_export_group = metabase.add_mutually_exclusive_group(required=True)
+    import_export_group.add_argument(
+        "--import",
+        action="store_true",
+        help=("Import the Kanban dashboard definitions to a Metabase instance."),
+    )
+    import_export_group.add_argument(
+        "--export",
+        action="store_true",
+        help=("Export the Kanban dashboard definitions from a Metabase instance."),
+    )
+    metabase.add_argument(
+        "--collection-id",
+        type=int,
+        help=(
+            "The id of the collection where the data will be imported to or "
+            "exported from."
+        ),
+        required=True,
+    )
+    metabase.add_argument(
+        "--url",
+        help="Metabase base URL",
+        default="http://localhost:3000",
+    )
+    metabase.add_argument(
+        "--username",
+        help="Metabase admin user",
+        required=True,
+    )
+    metabase.set_defaults(func=manage_metabase)
 
     # models subparsers
     models = subparsers.add_parser("models")
