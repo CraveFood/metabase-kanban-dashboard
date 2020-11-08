@@ -121,7 +121,17 @@ docker-compose run kanban-dash kanban-dash generate-test-data
 
 * Run the script to import the Kanban dashboard to the new collection. Make sure to use the proper username and collection-id:
 ```
-./scripts/metabase-import-export.py \
+metabase-import-export \
+    --username=<your-user-name> \
+    import \
+    --collection-id=<your-collection-id> \
+    --import-file=kanbandash/kanban-dashboards.json
+```
+
+or using our docker container:
+
+```
+docker run kanban-dash metabase-import-export \
     --username=<your-user-name> \
     import \
     --collection-id=<your-collection-id> \
