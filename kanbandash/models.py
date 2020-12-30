@@ -1,4 +1,3 @@
-
 from sqlalchemy import (
     Boolean,
     Column,
@@ -14,14 +13,31 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 from sqlalchemy.orm import sessionmaker
 
-import settings
+from . import settings
 
-# SQLAlchemy
-SQLALCHEMY_ENGINE = create_engine(settings.POSTGRES_DATABASE_URL, echo=False)
+SQLALCHEMY_CACHE = {}
 
 Base = declarative_base()
-Session = sessionmaker(bind=SQLALCHEMY_ENGINE)
 
+
+def get_db_engine():
+    if "engine" in SQLALCHEMY_CACHE:
+        return SQLALCHEMY_CACHE["engine"]
+
+    engine = create_engine(settings.POSTGRES_DATABASE_URL, echo=False)
+    SQLALCHEMY_CACHE["engine"] = engine
+    return engine
+
+
+def get_db_session_class():
+    if "session" in SQLALCHEMY_CACHE:
+        return SQLALCHEMY_CACHE["session"]
+
+    engine = get_db_engine()
+    Session = sessionmaker(bind=engine)
+    SQLALCHEMY_CACHE["session"] = Session
+
+    return Session
 
 
 class KanbanClassOfService(Base):

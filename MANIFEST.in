@@ -1,0 +1,2 @@
+include kanbandash/alembic.ini
+include kanbandash/kanban-dashboards.json

@@ -9,17 +9,17 @@ import string
 from collections import Counter
 from itertools import chain
 
-from models import (
+from .models import (
     KanbanBoard,
     KanbanCard,
     KanbanCardTime,
     KanbanClassOfService,
     KanbanColumn,
     KanbanDay,
-    Session,
+    get_db_session_class,
 )
 
-factories_session = Session()
+FACTORY_SESSION_CACHE = {}
 
 START_DATE = datetime.date(2019, 1, 1)
 TODAY = datetime.datetime.now().date()
@@ -34,7 +34,20 @@ CLASS_OF_SERVICES = {
 }
 
 
+def get_factory_session():
+    if "session" in FACTORY_SESSION_CACHE:
+        return FACTORY_SESSION_CACHE["session"]
+
+    Session = get_db_session_class()
+    factories_session = Session()
+    FACTORY_SESSION_CACHE["session"] = factories_session
+
+    return factories_session
+
+
 def generate_boards(n):
+    factories_session = get_factory_session()
+
     boards = []
     for letter in string.ascii_uppercase:
         name = "Board {}".format(letter)
@@ -68,6 +81,8 @@ def generate_kanban_columns(board):
 
 
 def generate_kanban_days():
+    factories_session = get_factory_session()
+
     class_of_services = get_object_ids(KanbanClassOfService)
     columns_query = factories_session.query(KanbanColumn)
     date = START_DATE
@@ -109,6 +124,8 @@ def generate_kanban_days():
 
 
 def generate_class_of_services():
+    factories_session = get_factory_session()
+
     class_of_services = CLASS_OF_SERVICES.keys()
 
     for name in class_of_services:
@@ -119,11 +136,15 @@ def generate_class_of_services():
 
 
 def get_object_ids(Model):
+    factories_session = get_factory_session()
+
     raw_query_data = factories_session.query(Model.id).all()
     return list(chain(*raw_query_data))
 
 
 def generate_kanban_cards(n, m):
+    factories_session = get_factory_session()
+
     date = START_DATE
     boards = get_object_ids(KanbanBoard)
     class_of_services = get_object_ids(KanbanClassOfService)
@@ -164,7 +185,7 @@ def generate_kanban_cards(n, m):
     factories_session.commit()
 
 
-def generate_data():
+def generate_data(args=None):
     generate_class_of_services()
     generate_boards(4)
     generate_kanban_days()
