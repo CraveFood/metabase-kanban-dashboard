@@ -140,7 +140,7 @@ metabase-import-export \
 or using our docker container:
 
 ```
-docker run kanban-dash metabase-import-export \
+docker run cravefood/kanban-dash metabase-import-export \
     --username=<your-user-name> \
     import \
     --collection-id=<your-collection-id> \
